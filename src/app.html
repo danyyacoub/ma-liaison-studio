@@ -984,6 +984,9 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     if (isVid) {
       v = document.createElement('video');
       v.playsInline = true; v.setAttribute('playsinline', ''); v.preload = 'auto'; v.src = item.url;
+      // iPhone Safari only keeps decoding frames for a video that is in the page.
+      v.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
+      document.body.append(v);
       await once(v, 'loadeddata');
     }
     const el = v || item.el;
@@ -1011,7 +1014,10 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     if (v) v.addEventListener('ended', finish);
     rec.start(250);
     const t0 = performance.now();
-    if (v) await v.play();
+    if (v) {
+      // Safari may refuse to play with sound once the tap that started the export has expired.
+      try { await v.play(); } catch { v.muted = true; await v.play(); }
+    }
     const total = v ? (v.duration || 1) : ANIM_SECONDS;
     await new Promise((resolve) => {
       const tick = () => {
@@ -1026,7 +1032,7 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     });
     await stopped;
     cancelExport = null;
-    if (v) v.pause();
+    if (v) { v.pause(); v.remove(); }
     stream.getTracks().forEach((t) => t.stop());
     if (actx) actx.close().catch(() => {});
     if (cancelled) return null;
