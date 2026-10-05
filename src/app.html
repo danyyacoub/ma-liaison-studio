@@ -256,9 +256,25 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     if (el.videoWidth) return [el.videoWidth, el.videoHeight];
     return [el.naturalWidth || el.width, el.naturalHeight || el.height];
   }
-  const blurC = document.createElement('canvas');
-  blurC.width = 18; blurC.height = 32;
-  const bctx = blurC.getContext('2d');
+  // Background = a soft vertical gradient from the colours along the photo's top and bottom edges,
+  // so the fill blends with the picture (like Instagram does).
+  const tinyC = document.createElement('canvas');
+  tinyC.width = 8; tinyC.height = 8;
+  const tctx = tinyC.getContext('2d', { willReadFrequently: true });
+  function edgeColors(item, el) {
+    if (item.bg) return item.bg;
+    try {
+      tctx.drawImage(el, 0, 0, 8, 8);
+      const d = tctx.getImageData(0, 0, 8, 8).data;
+      const avg = (rows) => {
+        let r = 0, g = 0, b = 0, n = 0;
+        for (const y of rows) for (let x = 0; x < 8; x++) { const i = (y * 8 + x) * 4; r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+        return [r / n, g / n, b / n].map(Math.round);
+      };
+      item.bg = { top: avg([0]), bottom: avg([7]) };
+    } catch { item.bg = { top: [0, 0, 0], bottom: [0, 0, 0] }; }
+    return item.bg;
+  }
 
   function baseScale(el) { const [mw, mh] = mediaSize(el); return Math.min(W / mw, H / mh); }
   function coverZoom(el) { const [mw, mh] = mediaSize(el); return Math.max(W / mw, H / mh) / Math.min(W / mw, H / mh); }
@@ -281,10 +297,16 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     c.imageSmoothingQuality = 'high';
     const r = mediaRect(item, el);
     if (r.blur) {
-      const bs = Math.max(blurC.width / mw, blurC.height / mh);
-      bctx.drawImage(el, (blurC.width - mw * bs) / 2, (blurC.height - mh * bs) / 2, mw * bs, mh * bs);
-      c.drawImage(blurC, 0, 0, W, H);
-      c.fillStyle = 'rgba(0,0,0,.2)';
+      const bg = edgeColors(item, el);
+      // Matches the photo's edge where they meet and darkens slightly towards the screen edges.
+      const rgb = (a, k) => `rgb(${a.map((v) => Math.round(v * k)).join(',')})`;
+      const cl = (v) => Math.min(1, Math.max(0, v));
+      const g = c.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, rgb(bg.top, 0.78));
+      g.addColorStop(cl(r.y / H), rgb(bg.top, 1));
+      g.addColorStop(Math.max(cl(r.y / H), cl((r.y + r.h) / H)), rgb(bg.bottom, 1));
+      g.addColorStop(1, rgb(bg.bottom, 0.78));
+      c.fillStyle = g;
       c.fillRect(0, 0, W, H);
     }
     c.drawImage(el, r.x, r.y, r.w, r.h);
@@ -1070,7 +1092,7 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     if (item.kind === 'video') {
       if (!item.srcUri) item.srcUri = await blobToCache(item.file, `source-${item.id}.${(item.file.name.split('.').pop() || 'mov')}`);
       const r = mediaRect(item, el);
-      Object.assign(opts, { video: item.srcUri, rect: { x: r.x, y: r.y, w: r.w, h: r.h }, blurBg: r.blur });
+      Object.assign(opts, { video: item.srcUri, rect: { x: r.x, y: r.y, w: r.w, h: r.h }, blurBg: false, ...(r.blur ? { bgTop: edgeColors(item, el).top, bgBottom: edgeColors(item, el).bottom } : {}) });
     } else {
       const c = document.createElement('canvas');
       c.width = W; c.height = H;

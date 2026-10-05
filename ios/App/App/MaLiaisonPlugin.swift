@@ -119,14 +119,14 @@ public class MaLiaisonPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     /// Places one video frame the way the editor shows it: `rect` is where the picture sits
-    /// in the 1080x1920 story (top-left origin), with an optional blurred fill behind it.
-    private func frameBase(_ source: CIImage, rect: CGRect, blurBg: Bool) -> CIImage {
+    /// in the 1080x1920 story (top-left origin), over the colour gradient `bg`.
+    private func frameBase(_ source: CIImage, rect: CGRect, blurBg: Bool, bg: CIImage) -> CIImage {
         let W = Self.width, H = Self.height
         let frame = CGRect(x: 0, y: 0, width: W, height: H)
         let e = source.extent
         let img = source.transformed(by: CGAffineTransform(translationX: -e.minX, y: -e.minY))
         let sw = e.width, sh = e.height
-        var base = CIImage(color: CIColor(red: 0, green: 0, blue: 0)).cropped(to: frame)
+        var base = bg.cropped(to: frame)
         if blurBg && sw > 0 && sh > 0 {
             let cs = max(W / sw, H / sh)
             let cover = img.transformed(by: CGAffineTransform(scaleX: cs, y: cs)
@@ -206,6 +206,28 @@ public class MaLiaisonPlugin: CAPPlugin, CAPBridgedPlugin {
         let r = call.getObject("rect") ?? [:]
         let rect = CGRect(x: num(r["x"]), y: num(r["y"]), width: num(r["w"]), height: num(r["h"]))
         let blurBg = call.getBool("blurBg") ?? false
+        // Soft vertical gradient behind the video, like the web editor: each colour matches the video's edge and darkens slightly towards the screen edge.
+        func color(_ key: String, _ k: CGFloat) -> CIColor {
+            let c = call.getArray(key) ?? []
+            guard c.count == 3 else { return CIColor(red: 0, green: 0, blue: 0) }
+            return CIColor(red: num(c[0]) / 255 * k, green: num(c[1]) / 255 * k, blue: num(c[2]) / 255 * k)
+        }
+        func band(_ key: String, from y0: CGFloat, to y1: CGFloat) -> CIImage? {
+            CIFilter(name: "CILinearGradient", parameters: [
+                "inputPoint0": CIVector(x: 0, y: y0), "inputColor0": color(key, 0.78),
+                "inputPoint1": CIVector(x: 0, y: y1), "inputColor1": color(key, 1)
+            ])?.outputImage
+        }
+        // Core Image y grows upwards: the top band runs from the screen top (H) down to the video's top edge.
+        let H = Self.height, W = Self.width
+        let topEdge = max(0, min(H, H - rect.minY)), bottomEdge = max(0, min(H, H - rect.maxY))
+        var bg = CIImage(color: CIColor(red: 0, green: 0, blue: 0)).cropped(to: CGRect(x: 0, y: 0, width: W, height: H))
+        if let bottom = band("bgBottom", from: 0, to: max(bottomEdge, 1)) {
+            bg = bottom.cropped(to: CGRect(x: 0, y: 0, width: W, height: bottomEdge)).composited(over: bg)
+        }
+        if let top = band("bgTop", from: H, to: min(topEdge, H - 1)) {
+            bg = top.cropped(to: CGRect(x: 0, y: topEdge, width: W, height: H - topEdge)).composited(over: bg)
+        }
         var stickers: [Sticker] = []
         for value in call.getArray("stickers") ?? [] {
             guard let o = value as? JSObject,
@@ -220,15 +242,15 @@ public class MaLiaisonPlugin: CAPPlugin, CAPBridgedPlugin {
         let out = FileManager.default.temporaryDirectory.appendingPathComponent(name)
         try? FileManager.default.removeItem(at: out)
         if let src = fileURL(call.getString("video")) {
-            composeVideo(src: src, rect: rect, blurBg: blurBg, stickers: stickers, out: out, call: call)
-        } else if let bg = fileURL(call.getString("background")) {
-            composeStill(background: bg, stickers: stickers, duration: call.getDouble("duration") ?? 5, out: out, call: call)
+            composeVideo(src: src, rect: rect, blurBg: blurBg, bg: bg, stickers: stickers, out: out, call: call)
+        } else if let still = fileURL(call.getString("background")) {
+            composeStill(background: still, stickers: stickers, duration: call.getDouble("duration") ?? 5, out: out, call: call)
         } else {
             call.reject("Nothing to compose")
         }
     }
 
-    private func composeVideo(src: URL, rect: CGRect, blurBg: Bool, stickers: [Sticker], out: URL, call: CAPPluginCall) {
+    private func composeVideo(src: URL, rect: CGRect, blurBg: Bool, bg: CIImage, stickers: [Sticker], out: URL, call: CAPPluginCall) {
         let asset = AVURLAsset(url: src)
         guard let track = asset.tracks(withMediaType: .video).first else {
             call.reject("This video could not be read")
@@ -249,7 +271,7 @@ public class MaLiaisonPlugin: CAPPlugin, CAPBridgedPlugin {
                 frame = frame.oriented(orient)
             }
             let t = CMTimeGetSeconds(request.compositionTime)
-            let image = self.overlay(base: self.frameBase(frame, rect: rect, blurBg: blurBg), stickers: stickers, t: t)
+            let image = self.overlay(base: self.frameBase(frame, rect: rect, blurBg: blurBg, bg: bg), stickers: stickers, t: t)
             request.finish(with: image, context: self.ciContext)
         })
         comp.renderSize = CGSize(width: Self.width, height: Self.height)
