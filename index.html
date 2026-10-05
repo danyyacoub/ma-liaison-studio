@@ -812,13 +812,13 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     return 'ok';
   }
 
-  const TARGETS = { instagram: 'Instagram Story', tiktok: 'TikTok', other: 'Save or other apps' };
+  const TARGETS = { instagram: 'Instagram Story', tiktok: 'TikTok', whatsapp: 'WhatsApp' };
   // Instagram does not offer Stories in the iPhone share menu for files from other apps,
   // so the photo is saved first and Instagram's story camera is opened, where it is the newest photo.
   async function sendTo(target, files) {
     const vid = files[0].type.startsWith('video');
     if (target === 'instagram') toast(vid ? 'Tap Save Video' : (files.length > 1 ? 'Tap Save Images' : 'Tap Save Image'));
-    else if (target === 'tiktok') toast('Pick TikTok in the menu');
+    else toast(`Pick ${TARGETS[target]} in the menu`);
     const r = await shareFiles(files);
     if (r === 'gesture') {
       sheet(vid ? 'Your video is ready.' : 'Ready to share.', [{ label: `Continue to ${TARGETS[target]}`, fn: () => sendTo(target, files) }]);
@@ -876,8 +876,8 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
       { label: 'Instagram Story', fn: () => shareCurrent('instagram') },
       { label: 'TikTok', fn: () => shareCurrent('tiktok') },
     ];
+    acts.push({ label: 'WhatsApp', fn: () => shareCurrent('whatsapp') });
     if (photos > 1) acts.push({ label: `All ${photos} photos to TikTok (slideshow)`, fn: shareAllPhotos });
-    acts.push({ label: 'Save or other apps', fn: () => shareCurrent('other') });
     sheet(null, acts);
   };
 
