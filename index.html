@@ -2,185 +2,187 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ma Liaison">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#19171c">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}</style>
 <title>Ma Liaison Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Kalam:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Kalam:wght@700&family=Manrope:wght@500;600;700;800&display=swap">
 <style>
-/* Layout: phone-first studio. 9:16 stage on top, controls beneath; side by side on wide screens. */
+/* Layout: one full-screen black "story" surface like Instagram's story editor.
+   Start screen = camera + library; editor = 9:16 frame with floating controls, bottom bar with Share. */
 :root {
-  --bg: #efedf0;
-  --surface: #ffffff;
-  --fg: #19171c;
-  --muted: #6b6672;
-  --line: #dcd8df;
-  --accent: #8a2f57;
-  --accent-fg: #ffffff;
-  --stage-bg: #1a181c;
-  --danger: #b3261e;
-  --f-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --ink: #000000;
+  --paper: #ffffff;
+  --veil: rgba(0, 0, 0, 0.55);
+  --chip: rgba(255, 255, 255, 0.16);
+  --cream: #f3ede4;
+  --gold: #c9a45c;
+  --f-brand: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --f-ui: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #121114; --surface: #1d1b20; --fg: #eeebf1; --muted: #a49eab; --line: #34303a;
-    --accent: #e48ab0; --accent-fg: #1a0d13; --stage-bg: #08070a; --danger: #f2877f; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #121114; --surface: #1d1b20; --fg: #eeebf1; --muted: #a49eab; --line: #34303a;
-  --accent: #e48ab0; --accent-fg: #1a0d13; --stage-bg: #08070a; --danger: #f2877f; color-scheme: dark;
+  color-scheme: dark;
 }
 [hidden] { display: none !important; }
-html, body { height: 100%; }
-body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.45; }
-.app { max-width: 1060px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 32px; display: grid; gap: 14px; }
-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.brand { font-family: var(--f-display); font-style: italic; font-weight: 600; font-size: 30px; letter-spacing: .01em; margin: 0; }
-.brand small { font-family: var(--f-ui); font-style: normal; font-weight: 600; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-left: 8px; }
-.work { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 820px) { .work { grid-template-columns: minmax(0, 1fr) 380px; align-items: start; } .side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); } }
-.stagewrap { background: var(--stage-bg); border-radius: 18px; padding: 12px; display: grid; place-items: center; position: relative; }
-#stage { display: block; height: min(66vh, 760px); width: auto; aspect-ratio: 9 / 16; max-width: 100%; border-radius: 10px; touch-action: none; cursor: grab; background: #000; }
-@media (max-width: 480px) { #stage { height: auto; width: 100%; } }
-.hint { color: var(--muted); font-size: 13px; margin: 0; }
-.stagewrap .hint { color: #b9b3bf; text-align: center; margin-top: 8px; }
-.tray { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-.thumb { flex: 0 0 auto; width: 58px; aspect-ratio: 9/16; border-radius: 8px; border: 2px solid transparent; padding: 0; background: var(--stage-bg) center / cover no-repeat; position: relative; cursor: pointer; }
-.thumb[aria-current="true"] { border-color: var(--accent); }
-.thumb .n { position: absolute; left: 3px; top: 3px; font-size: 10px; font-weight: 800; background: rgba(0,0,0,.7); color: #fff; border-radius: 5px; padding: 0 4px; }
-.thumb .vid { position: absolute; right: 3px; bottom: 3px; font-size: 10px; font-weight: 700; background: rgba(0,0,0,.7); color: #fff; border-radius: 5px; padding: 0 4px; font-variant-numeric: tabular-nums; }
-.side { display: grid; gap: 12px; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 10px; }
-.panel h2 { margin: 0; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-button, .filebtn { font: 600 14px/1 var(--f-ui); border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 10px 14px; cursor: pointer; }
-button:hover, .filebtn:hover { border-color: var(--muted); }
-button:focus-visible, .filebtn:focus-within, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-button:disabled { opacity: .45; cursor: not-allowed; }
-.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
-.dark { background: #111; color: #fff; border-color: #111; }
-.danger { color: var(--danger); }
-.filebtn { position: relative; overflow: hidden; display: inline-flex; align-items: center; }
-.filebtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
-.seg button { border: 0; padding: 7px 12px; font-size: 13px; }
-.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
-textarea { width: 100%; box-sizing: border-box; font: 600 18px/1.3 var(--f-ui); border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--bg); color: var(--fg); resize: vertical; min-height: 64px; }
-label.sl { display: grid; grid-template-columns: 52px 1fr 44px; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
-label.sl output { text-align: right; font-variant-numeric: tabular-nums; color: var(--fg); }
-input[type=range] { width: 100%; accent-color: var(--accent); }
-.chips button { padding: 7px 12px; font-size: 13px; }
-.chips button[aria-pressed="true"] { border-color: var(--fg); box-shadow: inset 0 0 0 1px var(--fg); }
-.chip-hand { font-family: "Kalam", cursive; font-weight: 700; }
-.chip-serif { font-family: var(--f-display); font-style: italic; font-size: 15px !important; }
-.note { font-size: 13px; color: var(--muted); margin: 0; }
-.note b { color: var(--fg); }
-#busy { position: fixed; inset: 0; background: rgba(10,8,12,.72); display: grid; place-items: center; z-index: 20; padding-inline: 16px; }
-#busy .box { background: var(--surface); color: var(--fg); border-radius: 16px; padding: 18px; width: min(340px, 100%); display: grid; gap: 10px; }
-.bar { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
-.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
-#toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; z-index: 30; max-width: calc(100% - 32px); text-align: center; }
-@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+html, body { height: 100%; margin: 0; background: var(--ink); color: var(--paper); font-family: var(--f-ui); -webkit-tap-highlight-color: transparent; overscroll-behavior: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
+.screen { position: fixed; inset: 0; display: flex; flex-direction: column; background: var(--ink); padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); user-select: none; -webkit-user-select: none; }
+
+/* start screen */
+.start { justify-content: space-between; align-items: center; text-align: center; }
+.start .brand { margin-top: 28px; font-family: var(--f-brand); font-style: italic; font-weight: 600; font-size: 34px; color: var(--cream); letter-spacing: .01em; }
+.start .brand span { display: block; margin: 6px auto 0; width: 120px; height: 1px; background: var(--gold); }
+.start p { margin: 0; padding-inline: 32px; color: rgba(255,255,255,.62); font-size: 15px; line-height: 1.45; max-width: 30ch; }
+.start .controls { width: 100%; max-width: 420px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-block: 0 34px; }
+.libbtn { justify-self: center; display: grid; justify-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,.85); }
+.libbtn i { width: 44px; height: 44px; border-radius: 10px; border: 2px solid var(--paper); display: grid; place-items: center; }
+.shutter { width: 84px; height: 84px; border-radius: 50%; border: 5px solid var(--paper); display: grid; place-items: center; }
+.shutter::after { content: ""; width: 64px; height: 64px; border-radius: 50%; background: var(--paper); transition: transform .12s; }
+.shutter:active::after { transform: scale(.9); }
+.shutlabel { display: block; margin-top: 8px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,.85); }
+
+/* editor */
+.stagebox { flex: 1; min-height: 0; display: grid; place-items: center; padding: 8px 8px 0; }
+.frame { position: relative; border-radius: 14px; overflow: hidden; background: #111; }
+#stage { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+.topbar { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 12px; pointer-events: none; background: linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,0)); }
+.topbar > * { pointer-events: auto; }
+.topbar .right { display: flex; gap: 10px; }
+.ico { width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,.38); display: grid; place-items: center; }
+.ico svg { width: 22px; height: 22px; }
+.aa { font-weight: 800; font-size: 17px; letter-spacing: -.02em; }
+.trash { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); width: 56px; height: 56px; border-radius: 50%; border: 2px solid rgba(255,255,255,.9); background: rgba(0,0,0,.35); display: grid; place-items: center; transition: transform .12s, background .12s; pointer-events: none; }
+.trash.hot { transform: translateX(-50%) scale(1.25); background: #e5484d; border-color: #e5484d; }
+.trash svg { width: 24px; height: 24px; }
+.bottombar { height: 76px; display: flex; align-items: center; gap: 10px; padding-inline: 12px; }
+.strip { flex: 1; min-width: 0; display: flex; gap: 6px; overflow-x: auto; align-items: center; scrollbar-width: none; }
+.strip::-webkit-scrollbar { display: none; }
+.thumb { flex: 0 0 auto; width: 34px; height: 60px; border-radius: 6px; background: #222 center / cover no-repeat; border: 2px solid transparent; position: relative; }
+.thumb[aria-current="true"] { border-color: var(--paper); }
+.thumb .v { position: absolute; right: 2px; bottom: 1px; font-size: 9px; text-shadow: 0 0 3px #000; }
+.addmore { flex: 0 0 auto; width: 34px; height: 60px; border-radius: 6px; border: 1.5px dashed rgba(255,255,255,.55); display: grid; place-items: center; font-size: 22px; font-weight: 500; color: rgba(255,255,255,.8); }
+.sharebtn { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; background: var(--paper); color: var(--ink); font-weight: 700; font-size: 15px; padding: 12px 18px; border-radius: 999px; }
+.sharebtn svg { width: 16px; height: 16px; }
+
+/* text editor overlay */
+.texted { position: fixed; inset: 0; background: var(--veil); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 10; }
+.texted .bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px; }
+.texted .done { font-weight: 700; font-size: 17px; padding: 8px 6px; }
+.bgtoggle { width: 40px; height: 40px; border-radius: 10px; border: 2px solid var(--paper); font-weight: 800; font-size: 17px; display: grid; place-items: center; }
+.bgtoggle[data-bg="black"] { background: var(--ink); color: var(--paper); }
+.bgtoggle[data-bg="white"] { background: var(--paper); color: var(--ink); }
+.texted .mid { flex: 1; display: grid; place-items: center; padding: 16px; overflow: auto; }
+#edText { display: inline-block; min-width: 1ch; max-width: 86vw; text-align: center; font-size: 34px; line-height: 1.18; padding: 10px 22px; border-radius: 26px; outline: none; white-space: pre-wrap; word-break: break-word; caret-color: var(--paper); user-select: text; -webkit-user-select: text; }
+#edText:empty::before { content: attr(data-ph); opacity: .45; }
+#edText[data-bg="black"] { background: rgba(0,0,0,.93); color: var(--paper); }
+#edText[data-bg="white"] { background: var(--paper); color: var(--ink); caret-color: var(--ink); }
+#edText[data-bg="none"] { background: transparent; color: var(--paper); text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+#edText[data-font="classic"] { font-family: var(--f-ui); font-weight: 700; }
+#edText[data-font="script"] { font-family: "Kalam", "Comic Sans MS", cursive; font-weight: 700; }
+#edText[data-font="elegant"] { font-family: var(--f-brand); font-style: italic; font-weight: 600; font-size: 38px; }
+.fonts { display: flex; gap: 8px; justify-content: center; padding: 0 12px 16px; flex-wrap: wrap; }
+.fonts button { padding: 8px 14px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: 700; }
+.fonts button[aria-pressed="true"] { background: var(--paper); color: var(--ink); }
+.fonts .f-script { font-family: "Kalam", cursive; }
+.fonts .f-elegant { font-family: var(--f-brand); font-style: italic; font-size: 16px; }
+
+/* action sheet + busy + toast */
+.sheet { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: flex-end; justify-content: center; z-index: 20; padding: 0 10px calc(env(safe-area-inset-bottom, 0px) + 10px); }
+.sheet .box { width: 100%; max-width: 420px; display: grid; gap: 8px; }
+.sheet .grp { background: #2a2a2c; border-radius: 14px; overflow: hidden; display: grid; }
+.sheet .grp p { margin: 0; padding: 14px 16px 10px; font-size: 13px; color: rgba(255,255,255,.6); text-align: center; }
+.sheet .grp button { padding: 16px; font-size: 17px; font-weight: 600; border-top: 1px solid rgba(255,255,255,.1); color: #4ea1ff; }
+.sheet .grp button.red { color: #ff6961; }
+.sheet .cancel { background: #2a2a2c; border-radius: 14px; padding: 16px; font-size: 17px; font-weight: 700; color: #4ea1ff; }
+#busy { position: fixed; inset: 0; background: rgba(0,0,0,.75); display: grid; place-items: center; z-index: 30; padding-inline: 24px; }
+#busy .box { width: min(300px, 100%); display: grid; gap: 12px; text-align: center; }
+#busy .bar { height: 4px; border-radius: 99px; background: rgba(255,255,255,.2); overflow: hidden; }
+#busy .bar i { display: block; height: 100%; width: 0; background: var(--paper); }
+#busy small { color: rgba(255,255,255,.6); }
+#busy button { justify-self: center; padding: 8px 16px; border-radius: 999px; background: var(--chip); font-weight: 600; }
+#toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 70px); transform: translateX(-50%); background: rgba(40,40,42,.95); padding: 10px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; z-index: 40; max-width: calc(100% - 32px); text-align: center; }
+@media (prefers-reduced-motion: reduce) { .shutter::after, .trash { transition: none; } }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <header>
-    <h1 class="brand">Ma Liaison <small>Studio</small></h1>
-    <div class="row">
-      <label class="filebtn primary">Add photos or videos<input id="pick" type="file" accept="image/*,video/*" multiple></label>
-    </div>
-  </header>
+<input id="camIn" type="file" accept="image/*,video/*" capture="environment" hidden>
+<input id="libIn" type="file" accept="image/*,video/*" multiple hidden>
 
-  <div class="work">
-    <div style="display:grid; gap:10px; min-width:0">
-      <div class="stagewrap">
-        <canvas id="stage" width="1080" height="1920" aria-label="Story preview. Drag a price sticker to move it; pinch to resize or twist to tilt."></canvas>
-        <p class="hint" id="stageHint">Drag a sticker to move it. Pinch to resize, twist to tilt.</p>
+<section class="screen start" id="startScreen">
+  <div class="brand">Ma Liaison<span></span></div>
+  <p>Take a photo or video of the item, or pick some from your library. Several photos make a TikTok slideshow.</p>
+  <div class="controls">
+    <button class="libbtn" id="libBtn" aria-label="Choose from library">
+      <i><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></i>
+      Library
+    </button>
+    <div><button class="shutter" id="camBtn" aria-label="Open camera"></button><span class="shutlabel">Camera</span></div>
+    <span></span>
+  </div>
+</section>
+
+<section class="screen" id="editScreen" hidden>
+  <div class="stagebox" id="stagebox">
+    <div class="frame" id="frame">
+      <canvas id="stage" width="1080" height="1920" aria-label="Story. Tap to add a price, drag text to move it, pinch to resize or turn it, pinch the picture to zoom."></canvas>
+      <div class="topbar">
+        <button class="ico" id="closeBtn" aria-label="Discard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+        <div class="right">
+          <button class="ico" id="soundBtn" aria-label="Sound" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path id="soundWaves" d="M23 9l-6 6M17 9l6 6"/></svg>
+          </button>
+          <button class="ico aa" id="textBtn" aria-label="Add price">Aa</button>
+        </div>
       </div>
-      <div class="tray" id="tray" aria-label="Your photos and videos"></div>
-    </div>
-
-    <div class="side">
-      <section class="panel" id="itemPanel">
-        <h2>This photo</h2>
-        <div class="row">
-          <div class="seg" role="group" aria-label="Framing">
-            <button id="fitFill" aria-pressed="true">Fill screen</button>
-            <button id="fitWhole" aria-pressed="false">Show whole</button>
-          </div>
-        </div>
-        <div class="row">
-          <button id="moveL" title="Move earlier in the slideshow">◀ Earlier</button>
-          <button id="moveR" title="Move later in the slideshow">Later ▶</button>
-          <button id="removeItem" class="danger">Remove</button>
-        </div>
-        <p class="note" id="itemNote"></p>
-      </section>
-
-      <section class="panel">
-        <h2>Price sticker</h2>
-        <div class="row">
-          <button id="addSticker" class="dark">+ Add price</button>
-          <button id="dupSticker">Duplicate</button>
-          <button id="delSticker" class="danger">Delete</button>
-        </div>
-        <div id="stEdit" class="panel" style="padding:0;border:0;gap:10px">
-          <textarea id="stText" rows="2" aria-label="Sticker text" placeholder="135$&#10;Final reduction"></textarea>
-          <div class="row chips" role="group" aria-label="Sticker lettering">
-            <button data-font="hand" class="chip-hand">Handwritten</button>
-            <button data-font="clean">Clean</button>
-            <button data-font="serif" class="chip-serif">Elegant</button>
-          </div>
-          <label class="sl">Size <input id="stSize" type="range" min="30" max="400" step="1"><output id="stSizeOut"></output></label>
-          <label class="sl">Tilt <input id="stTilt" type="range" min="-45" max="45" step="1"><output id="stTiltOut"></output></label>
-          <button id="copyAll">Put this sticker on every photo</button>
-        </div>
-        <p class="note" id="stNone">Tap a sticker on the preview to edit it, or add one. Leave it off to post without a price.</p>
-      </section>
-
-      <section class="panel">
-        <h2>Save and share</h2>
-        <button id="exportOne" class="primary">Save this one</button>
-        <button id="exportAll">Save all photos for a TikTok slideshow</button>
-        <p class="note"><b>Instagram or TikTok story:</b> save, then pick Instagram or TikTok in the share menu and choose Story. <b>TikTok slideshow:</b> save all photos, then in TikTok tap +, Upload, select them in order and choose Photo.</p>
-        <p class="note">Videos keep their sound. A video with a sticker is redrawn in real time, so a 30 second clip takes about 30 seconds.</p>
-      </section>
+      <div class="trash" id="trash" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+      </div>
     </div>
   </div>
-</div>
-
-<div id="busy" hidden>
-  <div class="box">
-    <strong id="busyTitle">Preparing video</strong>
-    <div class="bar"><i id="busyBar"></i></div>
-    <span class="note" id="busyNote">Keep this screen open.</span>
-    <button id="busyCancel">Cancel</button>
+  <div class="bottombar">
+    <div class="strip" id="strip"></div>
+    <button class="sharebtn" id="shareBtn">Share
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
   </div>
-</div>
+</section>
+
+<section class="texted" id="textEd" hidden>
+  <div class="bar">
+    <button class="bgtoggle" id="bgToggle" data-bg="black" aria-label="Text background">A</button>
+    <button class="done" id="doneBtn">Done</button>
+  </div>
+  <div class="mid"><div id="edText" contenteditable="true" data-ph="135$" data-bg="black" data-font="classic" role="textbox" aria-multiline="true" aria-label="Price text"></div></div>
+  <div class="fonts" role="group" aria-label="Lettering">
+    <button data-font="classic">Classic</button>
+    <button data-font="script" class="f-script">Script</button>
+    <button data-font="elegant" class="f-elegant">Elegant</button>
+  </div>
+</section>
+
+<div class="sheet" id="sheet" hidden><div class="box"><div class="grp" id="sheetGrp"></div><button class="cancel" id="sheetCancel">Cancel</button></div></div>
+<div id="busy" hidden><div class="box"><strong id="busyTitle">Preparing video</strong><div class="bar"><i id="busyBar"></i></div><small>Keep this screen open.</small><button id="busyCancel">Cancel</button></div></div>
 <div id="toast" hidden></div>
 
 <script>
 (() => {
   const W = 1080, H = 1920;
   const $ = (s) => document.querySelector(s);
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const stage = $('#stage');
   const ctx = stage.getContext('2d');
-  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   let uid = 0;
 
-  const state = { items: [], cur: -1, sel: null, lastText: '100$', lastFont: 'hand' };
+  const state = { items: [], cur: -1, editing: null, style: { font: 'classic', bg: 'black' } };
   const cur = () => state.items[state.cur] || null;
   let dirty = true;
   const touch = () => { dirty = true; };
@@ -194,36 +196,35 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
   blurC.width = 18; blurC.height = 32;
   const bctx = blurC.getContext('2d');
 
+  function baseScale(item, el) { const [mw, mh] = mediaSize(el); return Math.min(W / mw, H / mh); }
+  function coverZoom(el) { const [mw, mh] = mediaSize(el); return Math.max(W / mw, H / mh) / Math.min(W / mw, H / mh); }
+
   function drawBackground(c, item, el) {
-    c.fillStyle = '#111';
+    c.fillStyle = '#000';
     c.fillRect(0, 0, W, H);
     const [mw, mh] = mediaSize(el);
     if (!mw || !mh) return;
     c.imageSmoothingEnabled = true;
     c.imageSmoothingQuality = 'high';
-    if (item.fit === 'fill') {
-      const s = Math.max(W / mw, H / mh);
-      const dw = mw * s, dh = mh * s;
-      const mx = (dw - W) / 2, my = (dh - H) / 2;
-      item.pan.x = clamp(item.pan.x, -mx, mx);
-      item.pan.y = clamp(item.pan.y, -my, my);
-      c.drawImage(el, (W - dw) / 2 + item.pan.x, (H - dh) / 2 + item.pan.y, dw, dh);
-    } else {
-      const s = Math.max(blurC.width / mw, blurC.height / mh);
-      bctx.drawImage(el, (blurC.width - mw * s) / 2, (blurC.height - mh * s) / 2, mw * s, mh * s);
+    const s = baseScale(item, el) * item.zoom;
+    const dw = mw * s, dh = mh * s;
+    if (dw < W - 1 || dh < H - 1) {
+      const bs = Math.max(blurC.width / mw, blurC.height / mh);
+      bctx.drawImage(el, (blurC.width - mw * bs) / 2, (blurC.height - mh * bs) / 2, mw * bs, mh * bs);
       c.drawImage(blurC, 0, 0, W, H);
-      c.fillStyle = 'rgba(0,0,0,.18)';
+      c.fillStyle = 'rgba(0,0,0,.2)';
       c.fillRect(0, 0, W, H);
-      const s2 = Math.min(W / mw, H / mh);
-      const dw = mw * s2, dh = mh * s2;
-      c.drawImage(el, (W - dw) / 2, (H - dh) / 2, dw, dh);
     }
+    const mx = Math.max(0, (dw - W) / 2) + W * 0.25, my = Math.max(0, (dh - H) / 2) + H * 0.25;
+    item.pan.x = clamp(item.pan.x, -mx, mx);
+    item.pan.y = clamp(item.pan.y, -my, my);
+    c.drawImage(el, (W - dw) / 2 + item.pan.x, (H - dh) / 2 + item.pan.y, dw, dh);
   }
 
   function fontFor(f, size) {
-    if (f === 'clean') return `700 ${size}px Manrope, system-ui, sans-serif`;
-    if (f === 'serif') return `italic 600 ${size * 1.12}px "Cormorant Garamond", Georgia, serif`;
-    return `700 ${size}px Kalam, "Comic Sans MS", cursive`;
+    if (f === 'script') return `700 ${size}px Kalam, "Comic Sans MS", cursive`;
+    if (f === 'elegant') return `italic 600 ${size * 1.12}px "Cormorant Garamond", Georgia, serif`;
+    return `700 ${size}px Manrope, system-ui, -apple-system, sans-serif`;
   }
   function roundRectPath(c, x, y, w, h, r) {
     c.beginPath();
@@ -234,75 +235,61 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
     c.arcTo(x, y, x + w, y, r);
     c.closePath();
   }
-  function drawSticker(c, st, selected) {
+  function drawSticker(c, st) {
     const size = 72 * st.scale;
     c.font = fontFor(st.font, size);
     let lines = st.text.split('\n');
     while (lines.length > 1 && !lines[lines.length - 1].trim()) lines.pop();
-    if (!lines.join('').trim()) lines = [' '];
     const lh = size * 1.18;
     const tw = Math.max(...lines.map((l) => c.measureText(l).width), size * 0.6);
-    const w = tw + size * 1.3, h = lines.length * lh + size * 0.5;
+    const w = tw + size * 1.2, h = lines.length * lh + size * 0.5;
     st._w = w; st._h = h;
     c.save();
     c.translate(st.x, st.y);
     c.rotate(st.rot);
-    roundRectPath(c, -w / 2, -h / 2, w, h, Math.min(h / 2, size * 0.85));
-    c.fillStyle = 'rgba(0,0,0,0.93)';
-    c.fill();
-    c.fillStyle = '#fff';
+    if (st.bg !== 'none') {
+      roundRectPath(c, -w / 2, -h / 2, w, h, Math.min(h / 2, size * 0.75));
+      c.fillStyle = st.bg === 'white' ? '#fff' : 'rgba(0,0,0,0.93)';
+      c.fill();
+    } else {
+      c.shadowColor = 'rgba(0,0,0,.55)';
+      c.shadowBlur = size * 0.18;
+    }
+    c.fillStyle = st.bg === 'white' ? '#000' : '#fff';
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     lines.forEach((l, i) => c.fillText(l, 0, -h / 2 + size * 0.25 + lh * (i + 0.5) + size * 0.04));
-    if (selected) {
-      c.setLineDash([16, 12]);
-      c.lineWidth = 5;
-      c.strokeStyle = '#fff';
-      roundRectPath(c, -w / 2 - 14, -h / 2 - 14, w + 28, h + 28, Math.min(h / 2 + 14, size));
-      c.stroke();
-    }
     c.restore();
   }
-  function drawScene(c, item, sel, el) {
+  function drawScene(c, item, el, skip) {
     drawBackground(c, item, el || item.el);
-    for (const st of item.stickers) drawSticker(c, st, st === sel);
-  }
-  function drawEmpty() {
-    ctx.fillStyle = '#1a181c';
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#cfc8d4';
-    ctx.textAlign = 'center';
-    ctx.font = 'italic 600 96px "Cormorant Garamond", Georgia, serif';
-    ctx.fillText('Ma Liaison', W / 2, H / 2 - 40);
-    ctx.font = '600 40px Manrope, system-ui, sans-serif';
-    ctx.fillText('Add photos or videos to start', W / 2, H / 2 + 50);
-  }
-  function render() {
-    const item = cur();
-    if (!item) { drawEmpty(); return; }
-    drawScene(ctx, item, state.sel);
+    for (const st of item.stickers) if (st !== skip) drawSticker(c, st);
   }
   function loop() {
     const item = cur();
-    if (dirty || (item && item.kind === 'video')) { render(); dirty = false; }
+    if (item && (dirty || item.kind === 'video')) { drawScene(ctx, item, null, state.editing); dirty = false; }
     requestAnimationFrame(loop);
   }
 
-  // ---------- items ----------
-  function defaultFit(el) {
-    const [mw, mh] = mediaSize(el);
-    return Math.abs(mw / mh - 9 / 16) < 0.09 ? 'fill' : 'whole';
+  // ---------- layout ----------
+  function fitFrame() {
+    const box = $('#stagebox');
+    const aw = box.clientWidth - 16, ah = box.clientHeight - 8;
+    let w = aw, h = aw * 16 / 9;
+    if (h > ah) { h = ah; w = ah * 9 / 16; }
+    const f = $('#frame');
+    f.style.width = Math.floor(w) + 'px';
+    f.style.height = Math.floor(h) + 'px';
   }
+  new ResizeObserver(fitFrame).observe($('#stagebox'));
+
+  // ---------- items ----------
   function thumbOf(el) {
     const c = document.createElement('canvas');
-    c.width = 90; c.height = 160;
-    const tmp = { fit: 'fill', pan: { x: 0, y: 0 } };
+    c.width = 68; c.height = 120;
     const k = c.getContext('2d');
     const [mw, mh] = mediaSize(el);
-    if (mw && mh) {
-      const s = Math.max(90 / mw, 160 / mh);
-      k.drawImage(el, (90 - mw * s) / 2, (160 - mh * s) / 2, mw * s, mh * s);
-    }
+    if (mw && mh) { const s = Math.max(68 / mw, 120 / mh); k.drawImage(el, (68 - mw * s) / 2, (120 - mh * s) / 2, mw * s, mh * s); }
     return c.toDataURL('image/jpeg', 0.7);
   }
   function once(el, ev) { return new Promise((res, rej) => { el.addEventListener(ev, res, { once: true }); el.addEventListener('error', rej, { once: true }); }); }
@@ -323,54 +310,84 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
       el.src = url;
       await el.decode();
     }
-    const item = { id: ++uid, kind, file: f, url, el, fit: defaultFit(el), pan: { x: 0, y: 0 }, stickers: [], thumb: thumbOf(el) };
+    const [mw, mh] = mediaSize(el);
+    const nearStory = Math.abs(mw / mh - 9 / 16) < 0.09;
+    const item = { id: ++uid, kind, file: f, url, el, zoom: nearStory ? coverZoom(el) : 1, pan: { x: 0, y: 0 }, stickers: [], thumb: thumbOf(el) };
     state.items.push(item);
-    return item;
   }
-
-  function makeSample() {
-    const c = document.createElement('canvas');
-    c.width = 1080; c.height = 1920;
-    const k = c.getContext('2d');
-    const g = k.createLinearGradient(0, 0, 0, 1920);
-    g.addColorStop(0, '#e9e4dd'); g.addColorStop(1, '#bfb4a8');
-    k.fillStyle = g; k.fillRect(0, 0, 1080, 1920);
-    // a simple sweater shape on a hanger
-    k.strokeStyle = '#6a5d50'; k.lineWidth = 10;
-    k.beginPath(); k.moveTo(540, 520); k.lineTo(540, 580); k.stroke();
-    k.beginPath(); k.arc(540, 500, 26, Math.PI * 0.1, Math.PI * 1.2, true); k.stroke();
-    k.fillStyle = '#f4ecd6';
-    k.beginPath();
-    k.moveTo(400, 600); k.lineTo(680, 600); k.lineTo(900, 760); k.lineTo(900, 1420); k.lineTo(780, 1420);
-    k.lineTo(760, 900); k.lineTo(760, 1540); k.lineTo(320, 1540); k.lineTo(320, 900); k.lineTo(300, 1420);
-    k.lineTo(180, 1420); k.lineTo(180, 760); k.closePath(); k.fill();
-    k.fillStyle = '#e8c63a';
-    k.font = '800 120px Manrope, system-ui, sans-serif';
-    k.textAlign = 'center';
-    k.fillText('PEACE', 540, 1120);
-    k.fillStyle = 'rgba(40,30,20,.55)';
-    k.font = '600 34px Manrope, system-ui, sans-serif';
-    k.fillText('Example photo. Add your own above.', 540, 1760);
-    const item = { id: ++uid, kind: 'image', sample: true, file: null, url: null, el: c, fit: 'fill', pan: { x: 0, y: 0 }, stickers: [], thumb: null };
-    item.stickers.push({ id: ++uid, text: '135$\nFinal reduction', x: 470, y: 330, scale: 1.25, rot: -0.14, font: 'hand' });
-    item.thumb = thumbOf(c);
-    return item;
+  async function addFiles(files) {
+    if (!files.length) return;
+    const first = state.items.length;
+    let failed = 0;
+    for (const f of files) { try { await addFile(f); } catch { failed++; } }
+    if (failed) toast(`${failed} file${failed > 1 ? 's' : ''} could not be opened`);
+    if (state.items.length > first) { showEditor(true); selectItem(first); }
   }
-
+  function showEditor(on) {
+    $('#startScreen').hidden = on;
+    $('#editScreen').hidden = !on;
+    if (on) fitFrame();
+  }
   function selectItem(i) {
     const prev = cur();
     if (prev && prev.kind === 'video') prev.el.pause();
     state.cur = i;
-    state.sel = null;
     const item = cur();
     if (item && item.kind === 'video') item.el.play().catch(() => {});
-    syncAll();
+    syncUI();
+  }
+  function syncUI() {
+    const item = cur();
+    const strip = $('#strip');
+    strip.textContent = '';
+    if (state.items.length > 1) {
+      state.items.forEach((it, i) => {
+        const b = document.createElement('button');
+        b.className = 'thumb';
+        b.style.backgroundImage = `url(${it.thumb})`;
+        b.setAttribute('aria-current', String(i === state.cur));
+        b.setAttribute('aria-label', `${it.kind === 'video' ? 'Video' : 'Photo'} ${i + 1}`);
+        if (it.kind === 'video') { const v = document.createElement('span'); v.className = 'v'; v.textContent = '▶'; b.append(v); }
+        b.onclick = () => selectItem(i);
+        strip.append(b);
+      });
+    }
+    const add = document.createElement('button');
+    add.className = 'addmore'; add.textContent = '+'; add.setAttribute('aria-label', 'Add more photos or videos');
+    add.onclick = () => $('#libIn').click();
+    strip.append(add);
+    const isVid = item && item.kind === 'video';
+    $('#soundBtn').hidden = !isVid;
+    if (isVid) $('#soundWaves').setAttribute('d', item.el.muted ? 'M23 9l-6 6M17 9l6 6' : 'M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14');
+    touch();
   }
 
-  // ---------- pointer gestures ----------
+  $('#camBtn').onclick = () => $('#camIn').click();
+  $('#libBtn').onclick = () => $('#libIn').click();
+  for (const id of ['#camIn', '#libIn']) {
+    $(id).addEventListener('change', async (e) => { const files = [...e.target.files]; e.target.value = ''; await addFiles(files); });
+  }
+  $('#soundBtn').onclick = () => { const it = cur(); it.el.muted = !it.el.muted; if (!it.el.muted) it.el.play().catch(() => {}); syncUI(); };
+  $('#closeBtn').onclick = () => {
+    const single = state.items.length === 1;
+    sheet(single ? 'Discard this story?' : 'Remove this one from the set?', [
+      { label: single ? 'Discard' : 'Remove', red: true, fn: () => {
+        const it = cur();
+        if (it.kind === 'video') it.el.pause();
+        URL.revokeObjectURL(it.url);
+        const i = state.cur;
+        state.items.splice(i, 1);
+        state.cur = -1;
+        if (!state.items.length) { showEditor(false); return; }
+        selectItem(Math.min(i, state.items.length - 1));
+      } },
+    ]);
+  };
+
+  // ---------- gestures ----------
   function toScene(e) {
     const r = stage.getBoundingClientRect();
-    return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height };
+    return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height, cx: e.clientX, cy: e.clientY };
   }
   function hitSticker(item, x, y) {
     for (let i = item.stickers.length - 1; i >= 0; i--) {
@@ -383,238 +400,214 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
     }
     return null;
   }
+  function overTrash(p) {
+    const r = $('#trash').getBoundingClientRect();
+    if (!r.width) return false;
+    return Math.hypot(p.cx - (r.left + r.width / 2), p.cy - (r.top + r.height / 2)) < 50;
+  }
   const ptrs = new Map();
-  let gesture = null;
+  let g = null;
   const dist = (a, b) => Math.hypot(b.x - a.x, b.y - a.y);
   const ang = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
   const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
-  function snapRot(r) { return Math.abs(r) < 0.05 ? 0 : r; }
+  const snap = (r) => (Math.abs(r) < 0.05 ? 0 : r);
 
-  function startDrag(p) {
-    const item = cur();
-    const st = hitSticker(item, p.x, p.y);
-    if (st) {
-      state.sel = st;
-      item.stickers.splice(item.stickers.indexOf(st), 1);
-      item.stickers.push(st);
-      gesture = { type: 'drag', st, start: p, ox: st.x, oy: st.y };
-    } else {
-      state.sel = null;
-      gesture = item.fit === 'fill' ? { type: 'pan', start: p, px: item.pan.x, py: item.pan.y } : null;
-    }
-    syncSticker(); touch();
-  }
-  function startPinch() {
-    const st = state.sel;
-    if (!st) { gesture = null; return; }
-    const [a, b] = [...ptrs.values()];
-    gesture = { type: 'pinch', st, d0: dist(a, b) || 1, a0: ang(a, b), s0: st.scale, r0: st.rot, c0: mid(a, b), ox: st.x, oy: st.y };
-  }
   stage.addEventListener('pointerdown', (e) => {
-    if (!cur()) return;
+    const item = cur();
+    if (!item) return;
     stage.setPointerCapture(e.pointerId);
-    ptrs.set(e.pointerId, toScene(e));
-    if (ptrs.size === 1) startDrag(toScene(e));
-    else if (ptrs.size === 2) startPinch();
+    const p = toScene(e);
+    ptrs.set(e.pointerId, p);
+    if (ptrs.size === 1) {
+      const st = hitSticker(item, p.x, p.y);
+      if (st) {
+        item.stickers.splice(item.stickers.indexOf(st), 1);
+        item.stickers.push(st);
+        g = { type: 'drag', st, start: p, ox: st.x, oy: st.y, moved: false };
+      } else {
+        g = { type: 'pan', start: p, px: item.pan.x, py: item.pan.y, moved: false };
+      }
+    } else if (ptrs.size === 2) {
+      const [a, b] = [...ptrs.values()];
+      if (g && g.st) {
+        const st = g.st;
+        g = { type: 'pinch', st, d0: dist(a, b) || 1, a0: ang(a, b), s0: st.scale, r0: st.rot, c0: mid(a, b), ox: st.x, oy: st.y, moved: true };
+      } else {
+        g = { type: 'zoom', d0: dist(a, b) || 1, z0: item.zoom, c0: mid(a, b), px: item.pan.x, py: item.pan.y, moved: true };
+      }
+    }
   });
   stage.addEventListener('pointermove', (e) => {
-    if (!ptrs.has(e.pointerId) || !gesture) return;
+    if (!ptrs.has(e.pointerId) || !g) return;
     const p = toScene(e);
     ptrs.set(e.pointerId, p);
     const item = cur();
-    if (gesture.type === 'drag') {
-      gesture.st.x = clamp(gesture.ox + p.x - gesture.start.x, 0, W);
-      gesture.st.y = clamp(gesture.oy + p.y - gesture.start.y, 0, H);
-    } else if (gesture.type === 'pan') {
-      item.pan.x = gesture.px + p.x - gesture.start.x;
-      item.pan.y = gesture.py + p.y - gesture.start.y;
-    } else if (gesture.type === 'pinch' && ptrs.size >= 2) {
+    if (g.type === 'drag' || g.type === 'pan') {
+      if (Math.hypot(p.x - g.start.x, p.y - g.start.y) > 12) g.moved = true;
+      if (!g.moved) return;
+    }
+    if (g.type === 'drag') {
+      g.st.x = clamp(g.ox + p.x - g.start.x, 0, W);
+      g.st.y = clamp(g.oy + p.y - g.start.y, 0, H);
+      $('#trash').hidden = false;
+      $('#trash').classList.toggle('hot', overTrash(p));
+    } else if (g.type === 'pan') {
+      item.pan.x = g.px + p.x - g.start.x;
+      item.pan.y = g.py + p.y - g.start.y;
+    } else if (ptrs.size >= 2) {
       const [a, b] = [...ptrs.values()];
-      const st = gesture.st;
-      st.scale = clamp(gesture.s0 * dist(a, b) / gesture.d0, 0.3, 4);
-      st.rot = snapRot(gesture.r0 + ang(a, b) - gesture.a0);
       const m = mid(a, b);
-      st.x = clamp(gesture.ox + m.x - gesture.c0.x, 0, W);
-      st.y = clamp(gesture.oy + m.y - gesture.c0.y, 0, H);
-      syncSticker();
+      if (g.type === 'pinch') {
+        g.st.scale = clamp(g.s0 * dist(a, b) / g.d0, 0.3, 4);
+        g.st.rot = snap(g.r0 + ang(a, b) - g.a0);
+        g.st.x = clamp(g.ox + m.x - g.c0.x, 0, W);
+        g.st.y = clamp(g.oy + m.y - g.c0.y, 0, H);
+      } else if (g.type === 'zoom') {
+        item.zoom = clamp(g.z0 * dist(a, b) / g.d0, 0.6, 6);
+        item.pan.x = g.px + m.x - g.c0.x;
+        item.pan.y = g.py + m.y - g.c0.y;
+      }
     }
     touch();
   });
   function endPtr(e) {
+    if (!ptrs.has(e.pointerId)) return;
+    const p = ptrs.get(e.pointerId);
     ptrs.delete(e.pointerId);
-    if (ptrs.size === 1 && gesture && gesture.type === 'pinch') {
-      const p = [...ptrs.values()][0];
-      gesture = { type: 'drag', st: gesture.st, start: p, ox: gesture.st.x, oy: gesture.st.y };
-    } else if (ptrs.size === 0) gesture = null;
+    const item = cur();
+    if (g && g.type === 'drag' && ptrs.size === 0) {
+      if (g.moved && overTrash(p)) item.stickers.splice(item.stickers.indexOf(g.st), 1);
+      else if (!g.moved && e.type === 'pointerup') openText(g.st);
+    } else if (g && g.type === 'pan' && !g.moved && ptrs.size === 0 && e.type === 'pointerup') {
+      openText(null, p);
+    }
+    $('#trash').hidden = true;
+    $('#trash').classList.remove('hot');
+    if (ptrs.size === 1 && g && (g.type === 'pinch' || g.type === 'zoom')) {
+      const q = [...ptrs.values()][0];
+      g = g.type === 'pinch' ? { type: 'drag', st: g.st, start: q, ox: g.st.x, oy: g.st.y, moved: true } : { type: 'pan', start: q, px: item.pan.x, py: item.pan.y, moved: true };
+    } else if (ptrs.size === 0) g = null;
+    touch();
   }
   stage.addEventListener('pointerup', endPtr);
   stage.addEventListener('pointercancel', endPtr);
   stage.addEventListener('wheel', (e) => {
-    const st = state.sel;
-    if (!st) return;
-    e.preventDefault();
-    if (e.shiftKey || e.altKey) st.rot = snapRot(clamp(st.rot + e.deltaY * 0.002, -Math.PI / 4, Math.PI / 4));
-    else st.scale = clamp(st.scale * Math.exp(-e.deltaY * 0.0015), 0.3, 4);
-    syncSticker(); touch();
-  }, { passive: false });
-  stage.addEventListener('dblclick', () => { if (state.sel) $('#stText').focus(); });
-
-  // ---------- panels ----------
-  function syncTray() {
-    const tray = $('#tray');
-    tray.textContent = '';
-    state.items.forEach((it, i) => {
-      const b = document.createElement('button');
-      b.className = 'thumb';
-      b.style.backgroundImage = `url(${it.thumb})`;
-      b.setAttribute('aria-current', String(i === state.cur));
-      b.setAttribute('aria-label', `${it.kind === 'video' ? 'Video' : 'Photo'} ${i + 1}${it.sample ? ' (example)' : ''}`);
-      const n = document.createElement('span'); n.className = 'n'; n.textContent = i + 1; b.append(n);
-      if (it.kind === 'video') {
-        const d = document.createElement('span'); d.className = 'vid';
-        const s = Math.round(it.el.duration || 0); d.textContent = `▶ ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-        b.append(d);
-      }
-      b.onclick = () => selectItem(i);
-      tray.append(b);
-    });
-  }
-  function syncItem() {
     const item = cur();
-    const on = !!item;
-    ['#fitFill', '#fitWhole', '#moveL', '#moveR', '#removeItem', '#addSticker', '#exportOne'].forEach((s) => { $(s).disabled = !on; });
-    $('#itemPanel h2').textContent = item && item.kind === 'video' ? 'This video' : 'This photo';
-    if (!item) { $('#itemNote').textContent = ''; return; }
-    $('#fitFill').setAttribute('aria-pressed', String(item.fit === 'fill'));
-    $('#fitWhole').setAttribute('aria-pressed', String(item.fit !== 'fill'));
-    $('#moveL').disabled = state.cur === 0;
-    $('#moveR').disabled = state.cur === state.items.length - 1;
-    let note = item.fit === 'fill' ? 'Drag the picture to choose what stays in the frame.' : 'The whole picture shows, with a soft blurred border.';
-    if (item.kind === 'video' && item.el.duration > 60) note += ' This video is over 60 seconds, so Instagram will split it into several story slides.';
-    if (item.sample) note = 'This is an example to show how stickers look. Add your own photos above.';
-    $('#itemNote').textContent = note;
-    const imgs = state.items.filter((i) => i.kind === 'image').length;
-    $('#exportAll').disabled = imgs < 2;
-    $('#exportAll').textContent = imgs >= 2 ? `Save all ${imgs} photos for a TikTok slideshow` : 'Save all photos for a TikTok slideshow';
-  }
-  function syncSticker() {
-    const st = state.sel;
-    $('#stEdit').hidden = !st;
-    $('#stNone').hidden = !!st;
-    $('#dupSticker').disabled = !st;
-    $('#delSticker').disabled = !st;
-    if (!st) return;
-    if (document.activeElement !== $('#stText')) $('#stText').value = st.text;
-    document.querySelectorAll('.chips button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.font === st.font)));
-    $('#stSize').value = Math.round(st.scale * 100);
-    $('#stSizeOut').textContent = Math.round(st.scale * 100) + '%';
-    const deg = Math.round(st.rot * 180 / Math.PI);
-    $('#stTilt').value = deg;
-    $('#stTiltOut').textContent = deg + '°';
-  }
-  function syncAll() { syncTray(); syncItem(); syncSticker(); touch(); }
-
-  $('#pick').addEventListener('change', async (e) => {
-    const files = [...e.target.files];
-    e.target.value = '';
-    if (!files.length) return;
-    const sampleIdx = state.items.findIndex((i) => i.sample);
-    if (sampleIdx >= 0) state.items.splice(sampleIdx, 1);
-    const first = state.items.length;
-    let failed = 0;
-    for (const f of files) { try { await addFile(f); } catch { failed++; } }
-    if (failed) toast(`${failed} file${failed > 1 ? 's' : ''} could not be opened`);
-    selectItem(Math.min(first, state.items.length - 1));
-  });
-  $('#fitFill').onclick = () => { const it = cur(); it.fit = 'fill'; syncItem(); touch(); };
-  $('#fitWhole').onclick = () => { const it = cur(); it.fit = 'whole'; syncItem(); touch(); };
-  function move(d) {
-    const i = state.cur, j = i + d;
-    if (j < 0 || j >= state.items.length) return;
-    [state.items[i], state.items[j]] = [state.items[j], state.items[i]];
-    state.cur = j; syncAll();
-  }
-  $('#moveL').onclick = () => move(-1);
-  $('#moveR').onclick = () => move(1);
-  $('#removeItem').onclick = () => {
-    const it = cur();
-    if (it.kind === 'video') it.el.pause();
-    if (it.url) URL.revokeObjectURL(it.url);
-    const i = state.cur;
-    state.items.splice(i, 1);
-    state.cur = -1;
-    selectItem(Math.min(i, state.items.length - 1));
-  };
-  $('#addSticker').onclick = () => {
-    const it = cur();
-    const st = { id: ++uid, text: state.lastText, x: W / 2, y: H * 0.2 + it.stickers.length * 60, scale: 1.2, rot: 0, font: state.lastFont };
-    it.stickers.push(st);
-    state.sel = st;
-    syncSticker(); touch();
-    const t = $('#stText'); t.value = st.text; t.focus(); t.select();
-  };
-  $('#dupSticker').onclick = () => {
-    const it = cur(), s = state.sel;
-    const st = { ...s, id: ++uid, x: clamp(s.x + 40, 0, W), y: clamp(s.y + 160, 0, H) };
-    it.stickers.push(st); state.sel = st; syncSticker(); touch();
-  };
-  $('#delSticker').onclick = () => {
-    const it = cur();
-    it.stickers.splice(it.stickers.indexOf(state.sel), 1);
-    state.sel = null; syncSticker(); touch();
-  };
-  $('#stText').addEventListener('input', (e) => { if (!state.sel) return; state.sel.text = e.target.value; state.lastText = e.target.value; touch(); });
-  document.querySelectorAll('.chips button').forEach((b) => b.onclick = () => { if (!state.sel) return; state.sel.font = b.dataset.font; state.lastFont = b.dataset.font; syncSticker(); touch(); });
-  $('#stSize').addEventListener('input', (e) => { if (!state.sel) return; state.sel.scale = e.target.value / 100; $('#stSizeOut').textContent = e.target.value + '%'; touch(); });
-  $('#stTilt').addEventListener('input', (e) => { if (!state.sel) return; state.sel.rot = e.target.value * Math.PI / 180; $('#stTiltOut').textContent = e.target.value + '°'; touch(); });
-  $('#copyAll').onclick = () => {
-    const s = state.sel; let n = 0;
-    state.items.forEach((it) => {
-      if (it === cur() || it.kind !== 'image') return;
-      it.stickers.push({ ...s, id: ++uid }); n++;
-    });
-    toast(n ? `Added to ${n} other photo${n > 1 ? 's' : ''}` : 'No other photos yet');
+    if (!item) return;
+    e.preventDefault();
+    const top = item.stickers[item.stickers.length - 1];
+    if (top && (e.shiftKey || e.altKey)) top.rot = snap(top.rot + e.deltaY * 0.002);
+    else if (top && !e.ctrlKey) top.scale = clamp(top.scale * Math.exp(-e.deltaY * 0.0015), 0.3, 4);
+    else item.zoom = clamp(item.zoom * Math.exp(-e.deltaY * 0.0015), 0.6, 6);
     touch();
-  };
+  }, { passive: false });
 
-  // ---------- export ----------
+  // ---------- text editor ----------
+  const ed = $('#edText');
+  function setEdStyle() {
+    ed.dataset.font = state.style.font;
+    ed.dataset.bg = state.style.bg;
+    $('#bgToggle').dataset.bg = state.style.bg;
+    document.querySelectorAll('.fonts button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.font === state.style.font)));
+  }
+  function openText(st, at) {
+    const item = cur();
+    if (!item) return;
+    if (!st) {
+      st = { id: ++uid, text: '', x: at ? at.x : W / 2, y: at ? at.y : H * 0.25, scale: 1.2, rot: 0, font: state.style.font, bg: state.style.bg, fresh: true };
+      item.stickers.push(st);
+    }
+    state.editing = st;
+    state.style = { font: st.font, bg: st.bg };
+    ed.textContent = st.text;
+    setEdStyle();
+    $('#textEd').hidden = false;
+    ed.focus();
+    const r = document.createRange(); r.selectNodeContents(ed); r.collapse(false);
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    touch();
+  }
+  function closeText() {
+    const st = state.editing;
+    if (!st) return;
+    const item = cur();
+    st.text = ed.innerText.replace(/ /g, ' ').replace(/\n+$/, '');
+    st.font = state.style.font;
+    st.bg = state.style.bg;
+    if (!st.text.trim()) item.stickers.splice(item.stickers.indexOf(st), 1);
+    delete st.fresh;
+    state.editing = null;
+    $('#textEd').hidden = true;
+    ed.blur();
+    touch();
+  }
+  $('#textBtn').onclick = () => openText(null);
+  $('#doneBtn').onclick = closeText;
+  $('#textEd').addEventListener('pointerdown', (e) => { if (e.target.id === 'textEd' || e.target.classList.contains('mid')) closeText(); });
+  $('#bgToggle').onclick = () => { const order = ['black', 'white', 'none']; state.style.bg = order[(order.indexOf(state.style.bg) + 1) % 3]; setEdStyle(); ed.focus(); };
+  document.querySelectorAll('.fonts button').forEach((b) => b.onclick = () => { state.style.font = b.dataset.font; setEdStyle(); ed.focus(); });
+  ed.addEventListener('paste', (e) => { e.preventDefault(); document.execCommand('insertText', false, (e.clipboardData || window.clipboardData).getData('text')); });
+
+  // ---------- sheet, toast, busy ----------
+  function sheet(title, actions) {
+    const grp = $('#sheetGrp');
+    grp.textContent = '';
+    if (title) { const p = document.createElement('p'); p.textContent = title; grp.append(p); }
+    for (const a of actions) {
+      const b = document.createElement('button');
+      b.textContent = a.label;
+      if (a.red) b.className = 'red';
+      b.onclick = () => { $('#sheet').hidden = true; a.fn(); };
+      grp.append(b);
+    }
+    $('#sheet').hidden = false;
+  }
+  $('#sheetCancel').onclick = () => { $('#sheet').hidden = true; };
+  $('#sheet').addEventListener('pointerdown', (e) => { if (e.target.id === 'sheet') $('#sheet').hidden = true; });
   let toastT;
   function toast(msg) {
     const t = $('#toast'); t.textContent = msg; t.hidden = false;
-    clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3200);
+    clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3000);
   }
+  function busy(on, title) {
+    $('#busy').hidden = !on;
+    if (title) $('#busyTitle').textContent = title;
+    $('#busyBar').style.width = '0%';
+  }
+
+  // ---------- export ----------
   const stamp = () => new Date().toISOString().slice(0, 10);
-  function baseName(item, i) { return `ma-liaison-${stamp()}-${String(i + 1).padStart(2, '0')}`; }
+  const baseName = (i) => `ma-liaison-${stamp()}-${String(i + 1).padStart(2, '0')}`;
 
   async function exportImage(item, i) {
     const c = document.createElement('canvas');
     c.width = W; c.height = H;
-    drawScene(c.getContext('2d'), item, null);
+    drawScene(c.getContext('2d'), item);
     const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.92));
-    return new File([blob], baseName(item, i) + '.jpg', { type: 'image/jpeg' });
+    return new File([blob], baseName(i) + '.jpg', { type: 'image/jpeg' });
   }
-
   function pickMime() {
     if (!window.MediaRecorder) return null;
     const list = ['video/mp4;codecs=avc1.640028,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
     return list.find((m) => MediaRecorder.isTypeSupported(m)) || '';
   }
-
   let cancelExport = null;
   async function exportVideo(item, i) {
-    if (!item.stickers.length && item.fit === 'fill' && Math.abs(mediaSize(item.el)[0] / mediaSize(item.el)[1] - 9 / 16) < 0.02 && !item.pan.x && !item.pan.y) {
+    const [mw, mh] = mediaSize(item.el);
+    const untouched = !item.stickers.length && Math.abs(mw / mh - 9 / 16) < 0.02 && Math.abs(item.zoom - coverZoom(item.el)) < 0.01 && !item.pan.x && !item.pan.y;
+    if (untouched) {
       const ext = (item.file.name.split('.').pop() || 'mp4').toLowerCase();
-      return new File([item.file], baseName(item, i) + '.' + ext, { type: item.file.type });
+      return new File([item.file], baseName(i) + '.' + ext, { type: item.file.type });
     }
     const mime = pickMime();
     const c = document.createElement('canvas');
-    if (mime === null || !c.captureStream) throw new Error('This browser cannot create videos. Try Safari on iPhone or Chrome on Android.');
+    if (mime === null || !c.captureStream) throw new Error('This browser cannot create videos. Open the app in Safari.');
     c.width = W; c.height = H;
     const k = c.getContext('2d');
     const v = document.createElement('video');
     v.playsInline = true; v.setAttribute('playsinline', ''); v.preload = 'auto'; v.src = item.url;
     await once(v, 'loadeddata');
-    drawScene(k, item, null, v);
+    drawScene(k, item, v);
     const stream = c.captureStream(30);
     let actx = null;
     try {
@@ -639,7 +632,7 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
     await new Promise((resolve) => {
       const tick = () => {
         if (cancelled || done) return resolve();
-        drawScene(k, item, null, v);
+        drawScene(k, item, v);
         $('#busyBar').style.width = (100 * v.currentTime / (v.duration || 1)).toFixed(1) + '%';
         if (v.ended || v.currentTime >= v.duration - 0.03) { finish(); return resolve(); }
         requestAnimationFrame(tick);
@@ -653,35 +646,22 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
     if (actx) actx.close().catch(() => {});
     if (cancelled) return null;
     const type = (rec.mimeType || mime || 'video/webm').split(';')[0];
-    const ext = type.includes('mp4') ? 'mp4' : 'webm';
-    return new File(chunks, baseName(item, i) + '.' + ext, { type });
+    return new File(chunks, baseName(i) + '.' + (type.includes('mp4') ? 'mp4' : 'webm'), { type });
   }
+  $('#busyCancel').onclick = () => { if (cancelExport) cancelExport(); busy(false); };
 
   let downloads = null;
-  try {
-    if (window.claude && window.claude.use) window.claude.use('downloads').then((d) => { downloads = d; }).catch(() => {});
-  } catch {}
+  try { if (window.claude && window.claude.use) window.claude.use('downloads').then((d) => { downloads = d; }).catch(() => {}); } catch {}
 
   async function deliver(files) {
     try {
-      if (navigator.canShare && navigator.canShare({ files })) {
-        await navigator.share({ files });
-        toast('Shared');
-        return;
-      }
-    } catch (e) {
-      if (e && e.name === 'AbortError') return;
-    }
+      if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files }); return; }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
     if (downloads) {
       let n = 0;
       for (const f of files) {
         try { await downloads.save({ filename: f.name, data: f }); n++; }
-        catch (e) {
-          if (e && e.code === 'declined') { toast(n ? `Saved ${n} of ${files.length}` : 'Not saved'); return; }
-          if (e && e.code === 'rate_limited') { await new Promise((r) => setTimeout(r, 1500)); try { await downloads.save({ filename: f.name, data: f }); n++; continue; } catch {} }
-          toast('Saving is not available here. Open the page in your phone browser instead.');
-          return;
-        }
+        catch (e) { if (e && e.code === 'declined') return; toast('Saving is not available here'); return; }
       }
       toast(n > 1 ? `Saved ${n} files` : 'Saved');
       return;
@@ -695,27 +675,17 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
     toast(files.length > 1 ? `Saved ${files.length} files` : 'Saved');
   }
 
-  function busy(on, title, note) {
-    $('#busy').hidden = !on;
-    if (title) $('#busyTitle').textContent = title;
-    if (note) $('#busyNote').textContent = note;
-    $('#busyBar').style.width = '0%';
-  }
-  $('#busyCancel').onclick = () => { if (cancelExport) cancelExport(); busy(false); };
-
-  $('#exportOne').onclick = async () => {
+  async function shareCurrent() {
     const item = cur();
-    if (!item) return;
-    const prevSel = state.sel;
     try {
       let file;
       if (item.kind === 'video') {
         item.el.pause();
-        busy(true, 'Preparing video', 'Keep this screen open until it finishes.');
+        busy(true, 'Preparing video');
         file = await exportVideo(item, state.cur);
         busy(false);
-        if (!file) { toast('Cancelled'); return; }
-        if (file.type.includes('webm')) toast('This browser made a WebM video, which Instagram may refuse. Safari on iPhone makes MP4.');
+        if (!file) return;
+        if (file.type.includes('webm')) toast('This video format may not work on Instagram. Use Safari.');
       } else {
         file = await exportImage(item, state.cur);
       }
@@ -724,38 +694,31 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
       busy(false);
       toast(e && e.message ? e.message : 'Could not create the file');
     } finally {
-      state.sel = prevSel;
       if (item.kind === 'video' && cur() === item) item.el.play().catch(() => {});
     }
-  };
-  $('#exportAll').onclick = async () => {
-    const imgs = state.items.map((it, i) => [it, i]).filter(([it]) => it.kind === 'image');
-    if (imgs.length < 2) return;
+  }
+  async function shareAllPhotos() {
     try {
       const files = [];
-      for (const [it, i] of imgs) files.push(await exportImage(it, i));
+      for (const [i, it] of state.items.entries()) if (it.kind === 'image') files.push(await exportImage(it, i));
       await deliver(files);
-    } catch (e) { toast('Could not create the photos'); }
+    } catch { toast('Could not create the photos'); }
+  }
+  $('#shareBtn').onclick = () => {
+    const photos = state.items.filter((i) => i.kind === 'image').length;
+    if (photos < 2) { shareCurrent(); return; }
+    sheet(null, [
+      { label: cur().kind === 'video' ? 'This video' : 'This photo', fn: shareCurrent },
+      { label: `All ${photos} photos (TikTok slideshow)`, fn: shareAllPhotos },
+    ]);
   };
 
   // ---------- start ----------
-  state.items.push(makeSample());
-  selectItem(0);
+  setEdStyle();
   requestAnimationFrame(loop);
   if (document.fonts) {
-    Promise.all([
-      document.fonts.load('700 72px Kalam'), document.fonts.load('700 72px Manrope'),
-      document.fonts.load('italic 600 72px "Cormorant Garamond"'),
-    ]).then(() => {
-      const s = state.items.find((i) => i.sample);
-      if (s) { s.el = makeSample().el; s.thumb = thumbOf(s.el); syncTray(); }
-      touch();
-    }).catch(() => {});
+    Promise.all(['700 72px Kalam', '700 72px Manrope', 'italic 600 72px "Cormorant Garamond"'].map((f) => document.fonts.load(f))).then(touch).catch(() => {});
   }
-  document.addEventListener('keydown', (e) => {
-    if (!state.sel || e.target.matches('textarea, input')) return;
-    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); $('#delSticker').click(); }
-  });
 })();
 </script>
 <script>
