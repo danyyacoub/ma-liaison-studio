@@ -1,0 +1,19 @@
+{
+  "name": "ma-liaison-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ma Liaison Studio: price stickers for outlet photos and videos, shared to Instagram Stories, TikTok and WhatsApp",
+  "scripts": {
+    "build": "sh build.sh",
+    "ios": "sh build.sh && npx cap sync ios && npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/filesystem": "^8.1.4",
+    "@capacitor/ios": "^8.5.2",
+    "@capacitor/share": "^8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.2"
+  }
+}

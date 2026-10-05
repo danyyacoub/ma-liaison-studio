@@ -1,0 +1,9 @@
+{
+  "appId": "com.maliaison.studio",
+  "appName": "Ma Liaison",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#000000"
+  }
+}
