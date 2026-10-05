@@ -96,7 +96,7 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
 #edText[data-bg="black"] { background: rgba(0,0,0,.93); color: var(--paper); }
 #edText[data-bg="white"] { background: var(--paper); color: var(--ink); caret-color: var(--ink); }
 #edText[data-bg="none"] { background: transparent; color: var(--paper); text-shadow: 0 1px 6px rgba(0,0,0,.6); }
-.fonts { display: flex; gap: 8px; padding: 0 12px 16px; overflow-x: auto; scrollbar-width: none; }
+.fonts { display: flex; gap: 8px; padding: 0 12px 6px; overflow-x: auto; scrollbar-width: none; }
 .fonts::-webkit-scrollbar { display: none; }
 .fonts button { flex: 0 0 auto; padding: 8px 14px; border-radius: 999px; background: var(--chip); font-size: 14px; font-weight: 700; }
 .fonts button[aria-pressed="true"] { background: var(--paper); color: var(--ink); }
@@ -180,9 +180,8 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     <button class="bgtoggle" id="bgToggle" data-bg="black" aria-label="Text background">A</button>
     <button class="done" id="doneBtn">Done</button>
   </div>
+  <div class="fonts" role="group" aria-label="Lettering"></div>
   <div class="mid"><div id="edText" contenteditable="true" data-ph="135$" data-bg="black" role="textbox" aria-multiline="true" aria-label="Price text"></div></div>
-  <div class="fonts" role="group" aria-label="Lettering">
-  </div>
 </section>
 
 <div class="sheet" id="sheet" hidden><div class="box"><div class="grp" id="sheetGrp"></div><button class="cancel" id="sheetCancel">Cancel</button></div></div>
@@ -504,8 +503,6 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     if (g && g.type === 'drag' && ptrs.size === 0) {
       if (g.moved && overTrash(p)) item.stickers.splice(item.stickers.indexOf(g.st), 1);
       else if (!g.moved && e.type === 'pointerup') openText(g.st);
-    } else if (g && g.type === 'pan' && !g.moved && ptrs.size === 0 && e.type === 'pointerup') {
-      openText(null, p);
     }
     $('#trash').hidden = true;
     $('#trash').classList.remove('hot');
@@ -556,6 +553,7 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     ed.textContent = st.text;
     setEdStyle();
     $('#textEd').hidden = false;
+    fitTextEd();
     ed.focus();
     const r = document.createRange(); r.selectNodeContents(ed); r.collapse(false);
     const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
@@ -575,7 +573,21 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     ed.blur();
     touch();
   }
-  $('#textBtn').onclick = () => openText(null);
+  // Keep the editor inside the part of the screen the keyboard leaves visible.
+  function fitTextEd() {
+    const vv = window.visualViewport;
+    const t = $('#textEd');
+    if (!vv) return;
+    t.style.top = vv.offsetTop + 'px';
+    t.style.height = vv.height + 'px';
+    t.style.bottom = 'auto';
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', fitTextEd);
+    window.visualViewport.addEventListener('scroll', fitTextEd);
+  }
+  // Aa edits the text that is already there; a story normally has one price.
+  $('#textBtn').onclick = () => { const it = cur(); openText(it && it.stickers.length ? it.stickers[it.stickers.length - 1] : null); };
   $('#doneBtn').onclick = closeText;
   $('#textEd').addEventListener('pointerdown', (e) => { if (e.target.id === 'textEd' || e.target.classList.contains('mid')) closeText(); });
   $('#bgToggle').onclick = () => { const order = ['black', 'white', 'none']; state.style.bg = order[(order.indexOf(state.style.bg) + 1) % 3]; setEdStyle(); ed.focus(); };
@@ -693,7 +705,7 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     const all = await recentAll();
     const files = picked.map((id) => all.find((r) => r.id === id)).filter(Boolean)
       .map((r, i) => new File([r.blob], `ma-liaison-slide-${String(i + 1).padStart(2, '0')}.jpg`, { type: 'image/jpeg' }));
-    if (files.length) await deliver(files);
+    if (files.length) await sendTo('tiktok', files);
   };
   $('#rDelete').onclick = () => {
     sheet(`Delete ${picked.length} photo${picked.length > 1 ? 's' : ''} from Recent? They stay in your camera roll if you saved them.`, [
@@ -772,18 +784,23 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
   let downloads = null;
   try { if (window.claude && window.claude.use) window.claude.use('downloads').then((d) => { downloads = d; }).catch(() => {}); } catch {}
 
-  async function deliver(files) {
-    try {
-      if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files }); return; }
-    } catch (e) { if (e && e.name === 'AbortError') return; }
+  // Returns 'ok', 'cancel' or 'gesture' (iPhone needs a fresh tap after a long video export).
+  async function shareFiles(files) {
+    if (navigator.canShare && navigator.canShare({ files })) {
+      try { await navigator.share({ files }); return 'ok'; }
+      catch (e) {
+        if (e && e.name === 'AbortError') return 'cancel';
+        if (e && e.name === 'NotAllowedError') return 'gesture';
+      }
+    }
     if (downloads) {
       let n = 0;
       for (const f of files) {
         try { await downloads.save({ filename: f.name, data: f }); n++; }
-        catch (e) { if (e && e.code === 'declined') return; toast('Saving is not available here'); return; }
+        catch (e) { if (e && e.code === 'declined') return 'cancel'; toast('Saving is not available here'); return 'cancel'; }
       }
       toast(n > 1 ? `Saved ${n} files` : 'Saved');
-      return;
+      return 'ok';
     }
     for (const f of files) {
       const a = document.createElement('a');
@@ -792,33 +809,55 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
       setTimeout(() => URL.revokeObjectURL(a.href), 60000);
     }
     toast(files.length > 1 ? `Saved ${files.length} files` : 'Saved');
+    return 'ok';
+  }
+
+  const TARGETS = { instagram: 'Instagram Story', tiktok: 'TikTok', other: 'Save or other apps' };
+  // Instagram does not offer Stories in the iPhone share menu for files from other apps,
+  // so the photo is saved first and Instagram's story camera is opened, where it is the newest photo.
+  async function sendTo(target, files) {
+    const vid = files[0].type.startsWith('video');
+    if (target === 'instagram') toast(vid ? 'Tap Save Video' : (files.length > 1 ? 'Tap Save Images' : 'Tap Save Image'));
+    else if (target === 'tiktok') toast('Pick TikTok in the menu');
+    const r = await shareFiles(files);
+    if (r === 'gesture') {
+      sheet(vid ? 'Your video is ready.' : 'Ready to share.', [{ label: `Continue to ${TARGETS[target]}`, fn: () => sendTo(target, files) }]);
+      return;
+    }
+    if (r === 'ok' && target === 'instagram') {
+      sheet('Saved to your photos. In Instagram, swipe up in the story camera and pick it.', [
+        { label: 'Open Instagram Stories', fn: () => { window.location.href = 'instagram://camera'; } },
+      ]);
+    }
   }
 
   // The finished file is kept until the edit changes, so sharing again (Instagram, then TikTok) is instant.
   function editKey(item) {
     return JSON.stringify([item.zoom, item.pan, item.stickers.map((s) => [s.text, s.x, s.y, s.scale, s.rot, s.font, s.bg])]);
   }
-  async function shareCurrent() {
-    const item = cur();
+  async function finished(item, i) {
     const key = editKey(item);
-    if (item.done && item.done.key === key) { await deliver([item.done.file]); return; }
+    if (item.done && item.done.key === key) return item.done.file;
+    let file;
+    if (item.kind === 'video') {
+      item.el.pause();
+      busy(true, 'Preparing video');
+      try { file = await exportVideo(item, i); } finally { busy(false); }
+      if (!file) return null;
+      if (file.type.includes('webm')) toast('This video format may not work on Instagram. Use Safari.');
+    } else {
+      file = await exportImage(item, i);
+      recentAdd(item, file);
+    }
+    item.done = { key, file };
+    return file;
+  }
+  async function shareCurrent(target) {
+    const item = cur();
     try {
-      let file;
-      if (item.kind === 'video') {
-        item.el.pause();
-        busy(true, 'Preparing video');
-        file = await exportVideo(item, state.cur);
-        busy(false);
-        if (!file) return;
-        if (file.type.includes('webm')) toast('This video format may not work on Instagram. Use Safari.');
-      } else {
-        file = await exportImage(item, state.cur);
-        recentAdd(item, file);
-      }
-      item.done = { key, file };
-      await deliver([file]);
+      const file = await finished(item, state.cur);
+      if (file) await sendTo(target, [file]);
     } catch (e) {
-      busy(false);
       toast(e && e.message ? e.message : 'Could not create the file');
     } finally {
       if (item.kind === 'video' && cur() === item) item.el.play().catch(() => {});
@@ -827,22 +866,19 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
   async function shareAllPhotos() {
     try {
       const files = [];
-      for (const [i, it] of state.items.entries()) {
-        if (it.kind !== 'image') continue;
-        const key = editKey(it);
-        if (!(it.done && it.done.key === key)) { const f = await exportImage(it, i); it.done = { key, file: f }; recentAdd(it, f); }
-        files.push(it.done.file);
-      }
-      await deliver(files);
+      for (const [i, it] of state.items.entries()) if (it.kind === 'image') files.push(await finished(it, i));
+      await sendTo('tiktok', files);
     } catch { toast('Could not create the photos'); }
   }
   $('#shareBtn').onclick = () => {
     const photos = state.items.filter((i) => i.kind === 'image').length;
-    if (photos < 2) { shareCurrent(); return; }
-    sheet(null, [
-      { label: cur().kind === 'video' ? 'This video' : 'This photo', fn: shareCurrent },
-      { label: `All ${photos} photos (TikTok slideshow)`, fn: shareAllPhotos },
-    ]);
+    const acts = [
+      { label: 'Instagram Story', fn: () => shareCurrent('instagram') },
+      { label: 'TikTok', fn: () => shareCurrent('tiktok') },
+    ];
+    if (photos > 1) acts.push({ label: `All ${photos} photos to TikTok (slideshow)`, fn: shareAllPhotos });
+    acts.push({ label: 'Save or other apps', fn: () => shareCurrent('other') });
+    sheet(null, acts);
   };
 
   // ---------- start ----------
