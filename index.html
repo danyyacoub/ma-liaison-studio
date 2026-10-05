@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ma Liaison">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#19171c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}</style>
+<title>Ma Liaison Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Kalam:wght@400;700&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: phone-first studio. 9:16 stage on top, controls beneath; side by side on wide screens. */
+:root {
+  --bg: #efedf0;
+  --surface: #ffffff;
+  --fg: #19171c;
+  --muted: #6b6672;
+  --line: #dcd8df;
+  --accent: #8a2f57;
+  --accent-fg: #ffffff;
+  --stage-bg: #1a181c;
+  --danger: #b3261e;
+  --f-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --f-ui: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121114; --surface: #1d1b20; --fg: #eeebf1; --muted: #a49eab; --line: #34303a;
+    --accent: #e48ab0; --accent-fg: #1a0d13; --stage-bg: #08070a; --danger: #f2877f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121114; --surface: #1d1b20; --fg: #eeebf1; --muted: #a49eab; --line: #34303a;
+  --accent: #e48ab0; --accent-fg: #1a0d13; --stage-bg: #08070a; --danger: #f2877f; color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.45; }
+.app { max-width: 1060px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 32px; display: grid; gap: 14px; }
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.brand { font-family: var(--f-display); font-style: italic; font-weight: 600; font-size: 30px; letter-spacing: .01em; margin: 0; }
+.brand small { font-family: var(--f-ui); font-style: normal; font-weight: 600; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-left: 8px; }
+.work { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 820px) { .work { grid-template-columns: minmax(0, 1fr) 380px; align-items: start; } .side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); } }
+.stagewrap { background: var(--stage-bg); border-radius: 18px; padding: 12px; display: grid; place-items: center; position: relative; }
+#stage { display: block; height: min(66vh, 760px); width: auto; aspect-ratio: 9 / 16; max-width: 100%; border-radius: 10px; touch-action: none; cursor: grab; background: #000; }
+@media (max-width: 480px) { #stage { height: auto; width: 100%; } }
+.hint { color: var(--muted); font-size: 13px; margin: 0; }
+.stagewrap .hint { color: #b9b3bf; text-align: center; margin-top: 8px; }
+.tray { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.thumb { flex: 0 0 auto; width: 58px; aspect-ratio: 9/16; border-radius: 8px; border: 2px solid transparent; padding: 0; background: var(--stage-bg) center / cover no-repeat; position: relative; cursor: pointer; }
+.thumb[aria-current="true"] { border-color: var(--accent); }
+.thumb .n { position: absolute; left: 3px; top: 3px; font-size: 10px; font-weight: 800; background: rgba(0,0,0,.7); color: #fff; border-radius: 5px; padding: 0 4px; }
+.thumb .vid { position: absolute; right: 3px; bottom: 3px; font-size: 10px; font-weight: 700; background: rgba(0,0,0,.7); color: #fff; border-radius: 5px; padding: 0 4px; font-variant-numeric: tabular-nums; }
+.side { display: grid; gap: 12px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 10px; }
+.panel h2 { margin: 0; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+button, .filebtn { font: 600 14px/1 var(--f-ui); border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 10px 14px; cursor: pointer; }
+button:hover, .filebtn:hover { border-color: var(--muted); }
+button:focus-visible, .filebtn:focus-within, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.dark { background: #111; color: #fff; border-color: #111; }
+.danger { color: var(--danger); }
+.filebtn { position: relative; overflow: hidden; display: inline-flex; align-items: center; }
+.filebtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px; }
+.seg button { border: 0; padding: 7px 12px; font-size: 13px; }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+textarea { width: 100%; box-sizing: border-box; font: 600 18px/1.3 var(--f-ui); border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--bg); color: var(--fg); resize: vertical; min-height: 64px; }
+label.sl { display: grid; grid-template-columns: 52px 1fr 44px; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+label.sl output { text-align: right; font-variant-numeric: tabular-nums; color: var(--fg); }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.chips button { padding: 7px 12px; font-size: 13px; }
+.chips button[aria-pressed="true"] { border-color: var(--fg); box-shadow: inset 0 0 0 1px var(--fg); }
+.chip-hand { font-family: "Kalam", cursive; font-weight: 700; }
+.chip-serif { font-family: var(--f-display); font-style: italic; font-size: 15px !important; }
+.note { font-size: 13px; color: var(--muted); margin: 0; }
+.note b { color: var(--fg); }
+#busy { position: fixed; inset: 0; background: rgba(10,8,12,.72); display: grid; place-items: center; z-index: 20; padding-inline: 16px; }
+#busy .box { background: var(--surface); color: var(--fg); border-radius: 16px; padding: 18px; width: min(340px, 100%); display: grid; gap: 10px; }
+.bar { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+#toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-weight: 600; font-size: 14px; z-index: 30; max-width: calc(100% - 32px); text-align: center; }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <h1 class="brand">Ma Liaison <small>Studio</small></h1>
+    <div class="row">
+      <label class="filebtn primary">Add photos or videos<input id="pick" type="file" accept="image/*,video/*" multiple></label>
+    </div>
+  </header>
+
+  <div class="work">
+    <div style="display:grid; gap:10px; min-width:0">
+      <div class="stagewrap">
+        <canvas id="stage" width="1080" height="1920" aria-label="Story preview. Drag a price sticker to move it; pinch to resize or twist to tilt."></canvas>
+        <p class="hint" id="stageHint">Drag a sticker to move it. Pinch to resize, twist to tilt.</p>
+      </div>
+      <div class="tray" id="tray" aria-label="Your photos and videos"></div>
+    </div>
+
+    <div class="side">
+      <section class="panel" id="itemPanel">
+        <h2>This photo</h2>
+        <div class="row">
+          <div class="seg" role="group" aria-label="Framing">
+            <button id="fitFill" aria-pressed="true">Fill screen</button>
+            <button id="fitWhole" aria-pressed="false">Show whole</button>
+          </div>
+        </div>
+        <div class="row">
+          <button id="moveL" title="Move earlier in the slideshow">◀ Earlier</button>
+          <button id="moveR" title="Move later in the slideshow">Later ▶</button>
+          <button id="removeItem" class="danger">Remove</button>
+        </div>
+        <p class="note" id="itemNote"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Price sticker</h2>
+        <div class="row">
+          <button id="addSticker" class="dark">+ Add price</button>
+          <button id="dupSticker">Duplicate</button>
+          <button id="delSticker" class="danger">Delete</button>
+        </div>
+        <div id="stEdit" class="panel" style="padding:0;border:0;gap:10px">
+          <textarea id="stText" rows="2" aria-label="Sticker text" placeholder="135$&#10;Final reduction"></textarea>
+          <div class="row chips" role="group" aria-label="Sticker lettering">
+            <button data-font="hand" class="chip-hand">Handwritten</button>
+            <button data-font="clean">Clean</button>
+            <button data-font="serif" class="chip-serif">Elegant</button>
+          </div>
+          <label class="sl">Size <input id="stSize" type="range" min="30" max="400" step="1"><output id="stSizeOut"></output></label>
+          <label class="sl">Tilt <input id="stTilt" type="range" min="-45" max="45" step="1"><output id="stTiltOut"></output></label>
+          <button id="copyAll">Put this sticker on every photo</button>
+        </div>
+        <p class="note" id="stNone">Tap a sticker on the preview to edit it, or add one. Leave it off to post without a price.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Save and share</h2>
+        <button id="exportOne" class="primary">Save this one</button>
+        <button id="exportAll">Save all photos for a TikTok slideshow</button>
+        <p class="note"><b>Instagram or TikTok story:</b> save, then pick Instagram or TikTok in the share menu and choose Story. <b>TikTok slideshow:</b> save all photos, then in TikTok tap +, Upload, select them in order and choose Photo.</p>
+        <p class="note">Videos keep their sound. A video with a sticker is redrawn in real time, so a 30 second clip takes about 30 seconds.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div id="busy" hidden>
+  <div class="box">
+    <strong id="busyTitle">Preparing video</strong>
+    <div class="bar"><i id="busyBar"></i></div>
+    <span class="note" id="busyNote">Keep this screen open.</span>
+    <button id="busyCancel">Cancel</button>
+  </div>
+</div>
+<div id="toast" hidden></div>
+
+<script>
+(() => {
+  const W = 1080, H = 1920;
+  const $ = (s) => document.querySelector(s);
+  const stage = $('#stage');
+  const ctx = stage.getContext('2d');
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  let uid = 0;
+
+  const state = { items: [], cur: -1, sel: null, lastText: '100$', lastFont: 'hand' };
+  const cur = () => state.items[state.cur] || null;
+  let dirty = true;
+  const touch = () => { dirty = true; };
+
+  // ---------- drawing ----------
+  function mediaSize(el) {
+    if (el.videoWidth) return [el.videoWidth, el.videoHeight];
+    return [el.naturalWidth || el.width, el.naturalHeight || el.height];
+  }
+  const blurC = document.createElement('canvas');
+  blurC.width = 18; blurC.height = 32;
+  const bctx = blurC.getContext('2d');
+
+  function drawBackground(c, item, el) {
+    c.fillStyle = '#111';
+    c.fillRect(0, 0, W, H);
+    const [mw, mh] = mediaSize(el);
+    if (!mw || !mh) return;
+    c.imageSmoothingEnabled = true;
+    c.imageSmoothingQuality = 'high';
+    if (item.fit === 'fill') {
+      const s = Math.max(W / mw, H / mh);
+      const dw = mw * s, dh = mh * s;
+      const mx = (dw - W) / 2, my = (dh - H) / 2;
+      item.pan.x = clamp(item.pan.x, -mx, mx);
+      item.pan.y = clamp(item.pan.y, -my, my);
+      c.drawImage(el, (W - dw) / 2 + item.pan.x, (H - dh) / 2 + item.pan.y, dw, dh);
+    } else {
+      const s = Math.max(blurC.width / mw, blurC.height / mh);
+      bctx.drawImage(el, (blurC.width - mw * s) / 2, (blurC.height - mh * s) / 2, mw * s, mh * s);
+      c.drawImage(blurC, 0, 0, W, H);
+      c.fillStyle = 'rgba(0,0,0,.18)';
+      c.fillRect(0, 0, W, H);
+      const s2 = Math.min(W / mw, H / mh);
+      const dw = mw * s2, dh = mh * s2;
+      c.drawImage(el, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    }
+  }
+
+  function fontFor(f, size) {
+    if (f === 'clean') return `700 ${size}px Manrope, system-ui, sans-serif`;
+    if (f === 'serif') return `italic 600 ${size * 1.12}px "Cormorant Garamond", Georgia, serif`;
+    return `700 ${size}px Kalam, "Comic Sans MS", cursive`;
+  }
+  function roundRectPath(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+  function drawSticker(c, st, selected) {
+    const size = 72 * st.scale;
+    c.font = fontFor(st.font, size);
+    let lines = st.text.split('\n');
+    while (lines.length > 1 && !lines[lines.length - 1].trim()) lines.pop();
+    if (!lines.join('').trim()) lines = [' '];
+    const lh = size * 1.18;
+    const tw = Math.max(...lines.map((l) => c.measureText(l).width), size * 0.6);
+    const w = tw + size * 1.3, h = lines.length * lh + size * 0.5;
+    st._w = w; st._h = h;
+    c.save();
+    c.translate(st.x, st.y);
+    c.rotate(st.rot);
+    roundRectPath(c, -w / 2, -h / 2, w, h, Math.min(h / 2, size * 0.85));
+    c.fillStyle = 'rgba(0,0,0,0.93)';
+    c.fill();
+    c.fillStyle = '#fff';
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    lines.forEach((l, i) => c.fillText(l, 0, -h / 2 + size * 0.25 + lh * (i + 0.5) + size * 0.04));
+    if (selected) {
+      c.setLineDash([16, 12]);
+      c.lineWidth = 5;
+      c.strokeStyle = '#fff';
+      roundRectPath(c, -w / 2 - 14, -h / 2 - 14, w + 28, h + 28, Math.min(h / 2 + 14, size));
+      c.stroke();
+    }
+    c.restore();
+  }
+  function drawScene(c, item, sel, el) {
+    drawBackground(c, item, el || item.el);
+    for (const st of item.stickers) drawSticker(c, st, st === sel);
+  }
+  function drawEmpty() {
+    ctx.fillStyle = '#1a181c';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#cfc8d4';
+    ctx.textAlign = 'center';
+    ctx.font = 'italic 600 96px "Cormorant Garamond", Georgia, serif';
+    ctx.fillText('Ma Liaison', W / 2, H / 2 - 40);
+    ctx.font = '600 40px Manrope, system-ui, sans-serif';
+    ctx.fillText('Add photos or videos to start', W / 2, H / 2 + 50);
+  }
+  function render() {
+    const item = cur();
+    if (!item) { drawEmpty(); return; }
+    drawScene(ctx, item, state.sel);
+  }
+  function loop() {
+    const item = cur();
+    if (dirty || (item && item.kind === 'video')) { render(); dirty = false; }
+    requestAnimationFrame(loop);
+  }
+
+  // ---------- items ----------
+  function defaultFit(el) {
+    const [mw, mh] = mediaSize(el);
+    return Math.abs(mw / mh - 9 / 16) < 0.09 ? 'fill' : 'whole';
+  }
+  function thumbOf(el) {
+    const c = document.createElement('canvas');
+    c.width = 90; c.height = 160;
+    const tmp = { fit: 'fill', pan: { x: 0, y: 0 } };
+    const k = c.getContext('2d');
+    const [mw, mh] = mediaSize(el);
+    if (mw && mh) {
+      const s = Math.max(90 / mw, 160 / mh);
+      k.drawImage(el, (90 - mw * s) / 2, (160 - mh * s) / 2, mw * s, mh * s);
+    }
+    return c.toDataURL('image/jpeg', 0.7);
+  }
+  function once(el, ev) { return new Promise((res, rej) => { el.addEventListener(ev, res, { once: true }); el.addEventListener('error', rej, { once: true }); }); }
+
+  async function addFile(f) {
+    const url = URL.createObjectURL(f);
+    let el, kind;
+    if ((f.type || '').startsWith('video')) {
+      kind = 'video';
+      el = document.createElement('video');
+      el.muted = true; el.playsInline = true; el.loop = true; el.preload = 'auto';
+      el.setAttribute('playsinline', '');
+      el.src = url;
+      await once(el, 'loadeddata');
+    } else {
+      kind = 'image';
+      el = new Image();
+      el.src = url;
+      await el.decode();
+    }
+    const item = { id: ++uid, kind, file: f, url, el, fit: defaultFit(el), pan: { x: 0, y: 0 }, stickers: [], thumb: thumbOf(el) };
+    state.items.push(item);
+    return item;
+  }
+
+  function makeSample() {
+    const c = document.createElement('canvas');
+    c.width = 1080; c.height = 1920;
+    const k = c.getContext('2d');
+    const g = k.createLinearGradient(0, 0, 0, 1920);
+    g.addColorStop(0, '#e9e4dd'); g.addColorStop(1, '#bfb4a8');
+    k.fillStyle = g; k.fillRect(0, 0, 1080, 1920);
+    // a simple sweater shape on a hanger
+    k.strokeStyle = '#6a5d50'; k.lineWidth = 10;
+    k.beginPath(); k.moveTo(540, 520); k.lineTo(540, 580); k.stroke();
+    k.beginPath(); k.arc(540, 500, 26, Math.PI * 0.1, Math.PI * 1.2, true); k.stroke();
+    k.fillStyle = '#f4ecd6';
+    k.beginPath();
+    k.moveTo(400, 600); k.lineTo(680, 600); k.lineTo(900, 760); k.lineTo(900, 1420); k.lineTo(780, 1420);
+    k.lineTo(760, 900); k.lineTo(760, 1540); k.lineTo(320, 1540); k.lineTo(320, 900); k.lineTo(300, 1420);
+    k.lineTo(180, 1420); k.lineTo(180, 760); k.closePath(); k.fill();
+    k.fillStyle = '#e8c63a';
+    k.font = '800 120px Manrope, system-ui, sans-serif';
+    k.textAlign = 'center';
+    k.fillText('PEACE', 540, 1120);
+    k.fillStyle = 'rgba(40,30,20,.55)';
+    k.font = '600 34px Manrope, system-ui, sans-serif';
+    k.fillText('Example photo. Add your own above.', 540, 1760);
+    const item = { id: ++uid, kind: 'image', sample: true, file: null, url: null, el: c, fit: 'fill', pan: { x: 0, y: 0 }, stickers: [], thumb: null };
+    item.stickers.push({ id: ++uid, text: '135$\nFinal reduction', x: 470, y: 330, scale: 1.25, rot: -0.14, font: 'hand' });
+    item.thumb = thumbOf(c);
+    return item;
+  }
+
+  function selectItem(i) {
+    const prev = cur();
+    if (prev && prev.kind === 'video') prev.el.pause();
+    state.cur = i;
+    state.sel = null;
+    const item = cur();
+    if (item && item.kind === 'video') item.el.play().catch(() => {});
+    syncAll();
+  }
+
+  // ---------- pointer gestures ----------
+  function toScene(e) {
+    const r = stage.getBoundingClientRect();
+    return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height };
+  }
+  function hitSticker(item, x, y) {
+    for (let i = item.stickers.length - 1; i >= 0; i--) {
+      const st = item.stickers[i];
+      if (!st._w) continue;
+      const dx = x - st.x, dy = y - st.y;
+      const cs = Math.cos(-st.rot), sn = Math.sin(-st.rot);
+      const lx = dx * cs - dy * sn, ly = dx * sn + dy * cs;
+      if (Math.abs(lx) <= st._w / 2 + 30 && Math.abs(ly) <= st._h / 2 + 30) return st;
+    }
+    return null;
+  }
+  const ptrs = new Map();
+  let gesture = null;
+  const dist = (a, b) => Math.hypot(b.x - a.x, b.y - a.y);
+  const ang = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
+  const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+  function snapRot(r) { return Math.abs(r) < 0.05 ? 0 : r; }
+
+  function startDrag(p) {
+    const item = cur();
+    const st = hitSticker(item, p.x, p.y);
+    if (st) {
+      state.sel = st;
+      item.stickers.splice(item.stickers.indexOf(st), 1);
+      item.stickers.push(st);
+      gesture = { type: 'drag', st, start: p, ox: st.x, oy: st.y };
+    } else {
+      state.sel = null;
+      gesture = item.fit === 'fill' ? { type: 'pan', start: p, px: item.pan.x, py: item.pan.y } : null;
+    }
+    syncSticker(); touch();
+  }
+  function startPinch() {
+    const st = state.sel;
+    if (!st) { gesture = null; return; }
+    const [a, b] = [...ptrs.values()];
+    gesture = { type: 'pinch', st, d0: dist(a, b) || 1, a0: ang(a, b), s0: st.scale, r0: st.rot, c0: mid(a, b), ox: st.x, oy: st.y };
+  }
+  stage.addEventListener('pointerdown', (e) => {
+    if (!cur()) return;
+    stage.setPointerCapture(e.pointerId);
+    ptrs.set(e.pointerId, toScene(e));
+    if (ptrs.size === 1) startDrag(toScene(e));
+    else if (ptrs.size === 2) startPinch();
+  });
+  stage.addEventListener('pointermove', (e) => {
+    if (!ptrs.has(e.pointerId) || !gesture) return;
+    const p = toScene(e);
+    ptrs.set(e.pointerId, p);
+    const item = cur();
+    if (gesture.type === 'drag') {
+      gesture.st.x = clamp(gesture.ox + p.x - gesture.start.x, 0, W);
+      gesture.st.y = clamp(gesture.oy + p.y - gesture.start.y, 0, H);
+    } else if (gesture.type === 'pan') {
+      item.pan.x = gesture.px + p.x - gesture.start.x;
+      item.pan.y = gesture.py + p.y - gesture.start.y;
+    } else if (gesture.type === 'pinch' && ptrs.size >= 2) {
+      const [a, b] = [...ptrs.values()];
+      const st = gesture.st;
+      st.scale = clamp(gesture.s0 * dist(a, b) / gesture.d0, 0.3, 4);
+      st.rot = snapRot(gesture.r0 + ang(a, b) - gesture.a0);
+      const m = mid(a, b);
+      st.x = clamp(gesture.ox + m.x - gesture.c0.x, 0, W);
+      st.y = clamp(gesture.oy + m.y - gesture.c0.y, 0, H);
+      syncSticker();
+    }
+    touch();
+  });
+  function endPtr(e) {
+    ptrs.delete(e.pointerId);
+    if (ptrs.size === 1 && gesture && gesture.type === 'pinch') {
+      const p = [...ptrs.values()][0];
+      gesture = { type: 'drag', st: gesture.st, start: p, ox: gesture.st.x, oy: gesture.st.y };
+    } else if (ptrs.size === 0) gesture = null;
+  }
+  stage.addEventListener('pointerup', endPtr);
+  stage.addEventListener('pointercancel', endPtr);
+  stage.addEventListener('wheel', (e) => {
+    const st = state.sel;
+    if (!st) return;
+    e.preventDefault();
+    if (e.shiftKey || e.altKey) st.rot = snapRot(clamp(st.rot + e.deltaY * 0.002, -Math.PI / 4, Math.PI / 4));
+    else st.scale = clamp(st.scale * Math.exp(-e.deltaY * 0.0015), 0.3, 4);
+    syncSticker(); touch();
+  }, { passive: false });
+  stage.addEventListener('dblclick', () => { if (state.sel) $('#stText').focus(); });
+
+  // ---------- panels ----------
+  function syncTray() {
+    const tray = $('#tray');
+    tray.textContent = '';
+    state.items.forEach((it, i) => {
+      const b = document.createElement('button');
+      b.className = 'thumb';
+      b.style.backgroundImage = `url(${it.thumb})`;
+      b.setAttribute('aria-current', String(i === state.cur));
+      b.setAttribute('aria-label', `${it.kind === 'video' ? 'Video' : 'Photo'} ${i + 1}${it.sample ? ' (example)' : ''}`);
+      const n = document.createElement('span'); n.className = 'n'; n.textContent = i + 1; b.append(n);
+      if (it.kind === 'video') {
+        const d = document.createElement('span'); d.className = 'vid';
+        const s = Math.round(it.el.duration || 0); d.textContent = `▶ ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+        b.append(d);
+      }
+      b.onclick = () => selectItem(i);
+      tray.append(b);
+    });
+  }
+  function syncItem() {
+    const item = cur();
+    const on = !!item;
+    ['#fitFill', '#fitWhole', '#moveL', '#moveR', '#removeItem', '#addSticker', '#exportOne'].forEach((s) => { $(s).disabled = !on; });
+    $('#itemPanel h2').textContent = item && item.kind === 'video' ? 'This video' : 'This photo';
+    if (!item) { $('#itemNote').textContent = ''; return; }
+    $('#fitFill').setAttribute('aria-pressed', String(item.fit === 'fill'));
+    $('#fitWhole').setAttribute('aria-pressed', String(item.fit !== 'fill'));
+    $('#moveL').disabled = state.cur === 0;
+    $('#moveR').disabled = state.cur === state.items.length - 1;
+    let note = item.fit === 'fill' ? 'Drag the picture to choose what stays in the frame.' : 'The whole picture shows, with a soft blurred border.';
+    if (item.kind === 'video' && item.el.duration > 60) note += ' This video is over 60 seconds, so Instagram will split it into several story slides.';
+    if (item.sample) note = 'This is an example to show how stickers look. Add your own photos above.';
+    $('#itemNote').textContent = note;
+    const imgs = state.items.filter((i) => i.kind === 'image').length;
+    $('#exportAll').disabled = imgs < 2;
+    $('#exportAll').textContent = imgs >= 2 ? `Save all ${imgs} photos for a TikTok slideshow` : 'Save all photos for a TikTok slideshow';
+  }
+  function syncSticker() {
+    const st = state.sel;
+    $('#stEdit').hidden = !st;
+    $('#stNone').hidden = !!st;
+    $('#dupSticker').disabled = !st;
+    $('#delSticker').disabled = !st;
+    if (!st) return;
+    if (document.activeElement !== $('#stText')) $('#stText').value = st.text;
+    document.querySelectorAll('.chips button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.font === st.font)));
+    $('#stSize').value = Math.round(st.scale * 100);
+    $('#stSizeOut').textContent = Math.round(st.scale * 100) + '%';
+    const deg = Math.round(st.rot * 180 / Math.PI);
+    $('#stTilt').value = deg;
+    $('#stTiltOut').textContent = deg + '°';
+  }
+  function syncAll() { syncTray(); syncItem(); syncSticker(); touch(); }
+
+  $('#pick').addEventListener('change', async (e) => {
+    const files = [...e.target.files];
+    e.target.value = '';
+    if (!files.length) return;
+    const sampleIdx = state.items.findIndex((i) => i.sample);
+    if (sampleIdx >= 0) state.items.splice(sampleIdx, 1);
+    const first = state.items.length;
+    let failed = 0;
+    for (const f of files) { try { await addFile(f); } catch { failed++; } }
+    if (failed) toast(`${failed} file${failed > 1 ? 's' : ''} could not be opened`);
+    selectItem(Math.min(first, state.items.length - 1));
+  });
+  $('#fitFill').onclick = () => { const it = cur(); it.fit = 'fill'; syncItem(); touch(); };
+  $('#fitWhole').onclick = () => { const it = cur(); it.fit = 'whole'; syncItem(); touch(); };
+  function move(d) {
+    const i = state.cur, j = i + d;
+    if (j < 0 || j >= state.items.length) return;
+    [state.items[i], state.items[j]] = [state.items[j], state.items[i]];
+    state.cur = j; syncAll();
+  }
+  $('#moveL').onclick = () => move(-1);
+  $('#moveR').onclick = () => move(1);
+  $('#removeItem').onclick = () => {
+    const it = cur();
+    if (it.kind === 'video') it.el.pause();
+    if (it.url) URL.revokeObjectURL(it.url);
+    const i = state.cur;
+    state.items.splice(i, 1);
+    state.cur = -1;
+    selectItem(Math.min(i, state.items.length - 1));
+  };
+  $('#addSticker').onclick = () => {
+    const it = cur();
+    const st = { id: ++uid, text: state.lastText, x: W / 2, y: H * 0.2 + it.stickers.length * 60, scale: 1.2, rot: 0, font: state.lastFont };
+    it.stickers.push(st);
+    state.sel = st;
+    syncSticker(); touch();
+    const t = $('#stText'); t.value = st.text; t.focus(); t.select();
+  };
+  $('#dupSticker').onclick = () => {
+    const it = cur(), s = state.sel;
+    const st = { ...s, id: ++uid, x: clamp(s.x + 40, 0, W), y: clamp(s.y + 160, 0, H) };
+    it.stickers.push(st); state.sel = st; syncSticker(); touch();
+  };
+  $('#delSticker').onclick = () => {
+    const it = cur();
+    it.stickers.splice(it.stickers.indexOf(state.sel), 1);
+    state.sel = null; syncSticker(); touch();
+  };
+  $('#stText').addEventListener('input', (e) => { if (!state.sel) return; state.sel.text = e.target.value; state.lastText = e.target.value; touch(); });
+  document.querySelectorAll('.chips button').forEach((b) => b.onclick = () => { if (!state.sel) return; state.sel.font = b.dataset.font; state.lastFont = b.dataset.font; syncSticker(); touch(); });
+  $('#stSize').addEventListener('input', (e) => { if (!state.sel) return; state.sel.scale = e.target.value / 100; $('#stSizeOut').textContent = e.target.value + '%'; touch(); });
+  $('#stTilt').addEventListener('input', (e) => { if (!state.sel) return; state.sel.rot = e.target.value * Math.PI / 180; $('#stTiltOut').textContent = e.target.value + '°'; touch(); });
+  $('#copyAll').onclick = () => {
+    const s = state.sel; let n = 0;
+    state.items.forEach((it) => {
+      if (it === cur() || it.kind !== 'image') return;
+      it.stickers.push({ ...s, id: ++uid }); n++;
+    });
+    toast(n ? `Added to ${n} other photo${n > 1 ? 's' : ''}` : 'No other photos yet');
+    touch();
+  };
+
+  // ---------- export ----------
+  let toastT;
+  function toast(msg) {
+    const t = $('#toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 3200);
+  }
+  const stamp = () => new Date().toISOString().slice(0, 10);
+  function baseName(item, i) { return `ma-liaison-${stamp()}-${String(i + 1).padStart(2, '0')}`; }
+
+  async function exportImage(item, i) {
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    drawScene(c.getContext('2d'), item, null);
+    const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.92));
+    return new File([blob], baseName(item, i) + '.jpg', { type: 'image/jpeg' });
+  }
+
+  function pickMime() {
+    if (!window.MediaRecorder) return null;
+    const list = ['video/mp4;codecs=avc1.640028,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+    return list.find((m) => MediaRecorder.isTypeSupported(m)) || '';
+  }
+
+  let cancelExport = null;
+  async function exportVideo(item, i) {
+    if (!item.stickers.length && item.fit === 'fill' && Math.abs(mediaSize(item.el)[0] / mediaSize(item.el)[1] - 9 / 16) < 0.02 && !item.pan.x && !item.pan.y) {
+      const ext = (item.file.name.split('.').pop() || 'mp4').toLowerCase();
+      return new File([item.file], baseName(item, i) + '.' + ext, { type: item.file.type });
+    }
+    const mime = pickMime();
+    const c = document.createElement('canvas');
+    if (mime === null || !c.captureStream) throw new Error('This browser cannot create videos. Try Safari on iPhone or Chrome on Android.');
+    c.width = W; c.height = H;
+    const k = c.getContext('2d');
+    const v = document.createElement('video');
+    v.playsInline = true; v.setAttribute('playsinline', ''); v.preload = 'auto'; v.src = item.url;
+    await once(v, 'loadeddata');
+    drawScene(k, item, null, v);
+    const stream = c.captureStream(30);
+    let actx = null;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      actx = new AC();
+      const src = actx.createMediaElementSource(v);
+      const dest = actx.createMediaStreamDestination();
+      src.connect(dest);
+      dest.stream.getAudioTracks().forEach((t) => stream.addTrack(t));
+      await actx.resume();
+    } catch { v.muted = true; }
+    const rec = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 8_000_000 } : { videoBitsPerSecond: 8_000_000 });
+    const chunks = [];
+    rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+    const stopped = new Promise((r) => { rec.onstop = r; });
+    let cancelled = false, done = false;
+    cancelExport = () => { cancelled = true; v.pause(); if (rec.state !== 'inactive') rec.stop(); };
+    const finish = () => { if (done) return; done = true; if (rec.state !== 'inactive') rec.stop(); };
+    v.addEventListener('ended', finish);
+    rec.start(250);
+    await v.play();
+    await new Promise((resolve) => {
+      const tick = () => {
+        if (cancelled || done) return resolve();
+        drawScene(k, item, null, v);
+        $('#busyBar').style.width = (100 * v.currentTime / (v.duration || 1)).toFixed(1) + '%';
+        if (v.ended || v.currentTime >= v.duration - 0.03) { finish(); return resolve(); }
+        requestAnimationFrame(tick);
+      };
+      tick();
+    });
+    await stopped;
+    cancelExport = null;
+    v.pause();
+    stream.getTracks().forEach((t) => t.stop());
+    if (actx) actx.close().catch(() => {});
+    if (cancelled) return null;
+    const type = (rec.mimeType || mime || 'video/webm').split(';')[0];
+    const ext = type.includes('mp4') ? 'mp4' : 'webm';
+    return new File(chunks, baseName(item, i) + '.' + ext, { type });
+  }
+
+  let downloads = null;
+  try {
+    if (window.claude && window.claude.use) window.claude.use('downloads').then((d) => { downloads = d; }).catch(() => {});
+  } catch {}
+
+  async function deliver(files) {
+    try {
+      if (navigator.canShare && navigator.canShare({ files })) {
+        await navigator.share({ files });
+        toast('Shared');
+        return;
+      }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+    }
+    if (downloads) {
+      let n = 0;
+      for (const f of files) {
+        try { await downloads.save({ filename: f.name, data: f }); n++; }
+        catch (e) {
+          if (e && e.code === 'declined') { toast(n ? `Saved ${n} of ${files.length}` : 'Not saved'); return; }
+          if (e && e.code === 'rate_limited') { await new Promise((r) => setTimeout(r, 1500)); try { await downloads.save({ filename: f.name, data: f }); n++; continue; } catch {} }
+          toast('Saving is not available here. Open the page in your phone browser instead.');
+          return;
+        }
+      }
+      toast(n > 1 ? `Saved ${n} files` : 'Saved');
+      return;
+    }
+    for (const f of files) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(f); a.download = f.name;
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+    }
+    toast(files.length > 1 ? `Saved ${files.length} files` : 'Saved');
+  }
+
+  function busy(on, title, note) {
+    $('#busy').hidden = !on;
+    if (title) $('#busyTitle').textContent = title;
+    if (note) $('#busyNote').textContent = note;
+    $('#busyBar').style.width = '0%';
+  }
+  $('#busyCancel').onclick = () => { if (cancelExport) cancelExport(); busy(false); };
+
+  $('#exportOne').onclick = async () => {
+    const item = cur();
+    if (!item) return;
+    const prevSel = state.sel;
+    try {
+      let file;
+      if (item.kind === 'video') {
+        item.el.pause();
+        busy(true, 'Preparing video', 'Keep this screen open until it finishes.');
+        file = await exportVideo(item, state.cur);
+        busy(false);
+        if (!file) { toast('Cancelled'); return; }
+        if (file.type.includes('webm')) toast('This browser made a WebM video, which Instagram may refuse. Safari on iPhone makes MP4.');
+      } else {
+        file = await exportImage(item, state.cur);
+      }
+      await deliver([file]);
+    } catch (e) {
+      busy(false);
+      toast(e && e.message ? e.message : 'Could not create the file');
+    } finally {
+      state.sel = prevSel;
+      if (item.kind === 'video' && cur() === item) item.el.play().catch(() => {});
+    }
+  };
+  $('#exportAll').onclick = async () => {
+    const imgs = state.items.map((it, i) => [it, i]).filter(([it]) => it.kind === 'image');
+    if (imgs.length < 2) return;
+    try {
+      const files = [];
+      for (const [it, i] of imgs) files.push(await exportImage(it, i));
+      await deliver(files);
+    } catch (e) { toast('Could not create the photos'); }
+  };
+
+  // ---------- start ----------
+  state.items.push(makeSample());
+  selectItem(0);
+  requestAnimationFrame(loop);
+  if (document.fonts) {
+    Promise.all([
+      document.fonts.load('700 72px Kalam'), document.fonts.load('700 72px Manrope'),
+      document.fonts.load('italic 600 72px "Cormorant Garamond"'),
+    ]).then(() => {
+      const s = state.items.find((i) => i.sample);
+      if (s) { s.el = makeSample().el; s.thumb = thumbOf(s.el); syncTray(); }
+      touch();
+    }).catch(() => {});
+  }
+  document.addEventListener('keydown', (e) => {
+    if (!state.sel || e.target.matches('textarea, input')) return;
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); $('#delSticker').click(); }
+  });
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
