@@ -1,5 +1,5 @@
 // Caches the app so it opens offline. Bump VERSION when the app changes.
-const VERSION = 'ma-liaison-v8';
+const VERSION = 'ma-liaison-v9';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'fonts/kalam-400.woff2'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));

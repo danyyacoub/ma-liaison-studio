@@ -1168,10 +1168,10 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
       return;
     }
     if (target === 'instagram') toast(vid ? 'Tap Save Video' : (outs.length > 1 ? 'Tap Save Images' : 'Tap Save Image'));
-    else toast(`Pick ${TARGETS[target]} in the menu`);
+    else if (TARGETS[target]) toast(`Pick ${TARGETS[target]} in the menu`);
     const r = await shareFilesWeb(outs);
     if (r === 'gesture') {
-      sheet(vid ? 'Your video is ready.' : 'Ready to share.', [{ label: `Continue to ${TARGETS[target]}`, bold: true, fn: () => sendTo(target, outs) }]);
+      sheet(vid ? 'Your video is ready.' : 'Ready to share.', [{ label: TARGETS[target] ? `Continue to ${TARGETS[target]}` : 'Share', bold: true, fn: () => sendTo(target, outs) }]);
       return;
     }
     if (r === 'ok' && target === 'instagram') {
@@ -1210,6 +1210,8 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     } catch { toast('Could not create the photos'); }
   }
   $('#shareBtn').onclick = () => {
+    // On the web every choice ends in the same iPhone share sheet, so open it straight away.
+    if (!NATIVE) { shareCurrent('share'); return; }
     const photos = state.items.filter((i) => i.kind === 'image').length;
     const acts = [];
     if (NATIVE) acts.push({ label: 'Instagram Story + TikTok', bold: true, fn: () => shareCurrent('both') });
