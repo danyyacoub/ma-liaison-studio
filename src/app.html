@@ -81,8 +81,9 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
 .opts button.chip[aria-pressed="true"] { background: var(--paper); color: var(--ink); }
 .opts button.sw { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255,255,255,.85); }
 .opts button.sw[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--ink), 0 0 0 5px var(--paper); }
-.texted .mid { flex: 1; display: grid; place-items: center; padding: 16px; overflow: auto; }
-#edText { display: inline-block; min-width: 1ch; max-width: 86vw; text-align: center; font-size: 34px; line-height: 1.18; padding: 10px 22px; border-radius: 26px; outline: none; white-space: pre-wrap; word-break: break-word; user-select: text; -webkit-user-select: text; background: rgba(0,0,0,.93); color: var(--paper); }
+.texted .mid { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 8px 16px 16px; overflow: auto; }
+#edPreview { width: min(92vw, 460px); max-height: 46%; object-fit: contain; flex: 0 1 auto; pointer-events: none; }
+#edText { display: inline-block; min-width: 4ch; max-width: 86vw; text-align: center; font-size: 26px; line-height: 1.2; padding: 8px 18px; border-radius: 14px; outline: none; white-space: pre-wrap; word-break: break-word; user-select: text; -webkit-user-select: text; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.35); color: var(--paper); caret-color: var(--paper); }
 #edText:empty::before { content: attr(data-ph); opacity: .45; }
 .edhint { text-align: center; font-size: 12px; color: rgba(255,255,255,.65); padding: 0 16px 6px; min-height: 16px; }
 
@@ -171,7 +172,7 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
   </div>
   <div class="opts" id="opts" role="group"></div>
   <div class="edhint" id="edHint"></div>
-  <div class="mid"><canvas id="edPreview" width="1080" height="700" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px"></canvas><div id="edText" contenteditable="true" data-ph="135$" role="textbox" aria-multiline="true" aria-label="Price text"></div></div>
+  <div class="mid"><canvas id="edPreview" width="1080" height="640" aria-hidden="true"></canvas><div id="edText" contenteditable="true" data-ph="135$" role="textbox" aria-multiline="true" aria-label="Price text"></div></div>
 </section>
 
 <div class="sheet" id="sheet" hidden><div class="box"><div class="grp" id="sheetGrp"></div><button class="cancel" id="sheetCancel">Cancel</button></div></div>
@@ -478,7 +479,28 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     for (const st of item.stickers) if (st !== skip) drawSticker(c, st, t);
   }
   const animated = (item) => item.stickers.some((s) => s.anim && s.anim !== 'none');
+  // Live preview of the sticker being edited, with its design, color and motion.
+  const edCv = $('#edPreview'), edCtx = edCv.getContext('2d');
+  const measureCtx = Object.assign(document.createElement('canvas'), { width: 1, height: 1 }).getContext('2d');
+  function drawEdPreview() {
+    const st = state.editing;
+    const text = ed.innerText.replace(/\u00a0/g, ' ').replace(/\n+$/, '') || ed.dataset.ph;
+    const tmp = { ...st, text, scale: 1, rot: 0 };
+    // Measure on a scratch canvas: some designs reset globalAlpha while drawing.
+    const [w, h] = drawDesign(measureCtx, tmp);
+    edCtx.clearRect(0, 0, edCv.width, edCv.height);
+    const k = Math.min(1.4, (edCv.width * 0.86) / w, (edCv.height * 0.72) / h);
+    const m = motion(st.anim, previewTime(st));
+    edCtx.save();
+    edCtx.translate(edCv.width / 2 + m.dx * k * 0.4, edCv.height / 2 + m.dy * k);
+    edCtx.rotate(m.r);
+    edCtx.scale(k * m.s, k * m.s);
+    edCtx.globalAlpha = m.a;
+    drawDesign(edCtx, tmp);
+    edCtx.restore();
+  }
   function loop() {
+    if (state.editing) drawEdPreview();
     const item = cur();
     if (item && (dirty || item.kind === 'video' || animated(item))) { drawScene(ctx, item, null, state.editing); dirty = false; }
     requestAnimationFrame(loop);
@@ -716,14 +738,8 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
   const ed = $('#edText');
   function edStyle() {
     const s = state.style;
-    const col = COLORS[s.color];
-    ed.style.font = fontFor(s.font, 34);
-    const boxy = !['plain', 'outline', 'glass'].includes(s.design);
-    ed.style.background = boxy ? (col.gradient ? `linear-gradient(135deg, ${col.gradient.join(',')})` : col.bg) : (s.design === 'glass' ? 'rgba(255,255,255,.3)' : 'transparent');
-    ed.style.color = boxy ? col.fg : (s.color === 'black' ? '#fff' : col.bg);
-    ed.style.border = s.design === 'outline' || s.design === 'glass' ? `2px solid ${s.color === 'black' || s.design === 'glass' ? '#fff' : col.bg}` : '0';
-    ed.style.borderRadius = s.design === 'label' ? '6px' : (s.design === 'badge' ? '50%' : '26px');
-    ed.style.caretColor = ed.style.color;
+    // The field stays plain so it is easy to type in; the canvas above shows the real sticker.
+    ed.style.font = fontFor(s.font, 26);
     ed.dataset.ph = s.design === 'sale' ? '220$\n135$' : (s.design === 'label' ? 'Furla\n100$' : '135$');
     $('#edHint').textContent = DESIGN_HINT[s.design] || '';
     renderOpts();
