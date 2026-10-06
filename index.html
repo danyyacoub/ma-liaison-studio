@@ -564,17 +564,34 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     return c.toDataURL('image/jpeg', 0.7);
   }
   function once(el, ev) { return new Promise((res, rej) => { el.addEventListener(ev, res, { once: true }); el.addEventListener('error', rej, { once: true }); }); }
+  // iPhone Safari ignores preload and never loads a video's first frame until it plays, and only keeps
+  // drawing frames for a video that is in the page. So videos sit in a hidden holder and get a muted
+  // play to load; a timeout keeps the app from waiting forever.
+  const vidHolder = document.createElement('div');
+  vidHolder.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;overflow:hidden;opacity:0;pointer-events:none';
+  document.body.append(vidHolder);
+  async function loadVideo(v, url) {
+    v.muted = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('muted', '');
+    v.preload = 'auto';
+    vidHolder.append(v);
+    const ready = once(v, 'loadeddata');
+    v.src = url;
+    v.load();
+    v.play().catch(() => {});
+    await Promise.race([ready, new Promise((_, rej) => setTimeout(() => rej(new Error('Video did not load')), 15000))]);
+    if (!v.videoWidth) await once(v, 'loadedmetadata');
+    v.pause();
+    v.currentTime = 0;
+  }
 
   async function addFile(f) {
     const url = URL.createObjectURL(f);
     let el, kind;
-    if ((f.type || '').startsWith('video')) {
+    if ((f.type || '').startsWith('video') || /\.(mov|mp4|m4v|webm)$/i.test(f.name || '')) {
       kind = 'video';
       el = document.createElement('video');
-      el.muted = true; el.playsInline = true; el.loop = true; el.preload = 'auto';
-      el.setAttribute('playsinline', '');
-      el.src = url;
-      await once(el, 'loadeddata');
+      el.loop = true;
+      await loadVideo(el, url);
     } else {
       kind = 'image';
       el = new Image();
@@ -643,7 +660,7 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     sheet(single ? 'Discard this story? Shared photos stay in Recent.' : 'Remove this one from the set?', [
       { label: single ? 'Discard' : 'Remove', red: true, fn: () => {
         const it = cur();
-        if (it.kind === 'video') it.el.pause();
+        if (it.kind === 'video') { it.el.pause(); it.el.remove(); }
         URL.revokeObjectURL(it.url);
         const i = state.cur;
         state.items.splice(i, 1);
@@ -1019,11 +1036,8 @@ button:focus-visible, [contenteditable]:focus-visible { outline: 2px solid var(-
     let v = null;
     if (isVid) {
       v = document.createElement('video');
-      v.playsInline = true; v.setAttribute('playsinline', ''); v.preload = 'auto'; v.src = item.url;
-      // iPhone Safari only keeps decoding frames for a video that is in the page.
-      v.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
-      document.body.append(v);
-      await once(v, 'loadeddata');
+      await loadVideo(v, item.url);
+      v.muted = false;
     }
     const el = v || item.el;
     drawScene(k, item, el, null, 0);
